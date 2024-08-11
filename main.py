@@ -1,24 +1,33 @@
 import flet as ft
 import requests
+import time
 
 url = 'http://127.0.0.1:8000'
 
 
+
 def main(page: ft.Page):
+
     page.title = "Routes Example"
 
     # number = ft.TextField(value='0', text_align=ft.TextAlign.CENTER, width=80)
-
+    timer = ft.Text(value='30', text_align=ft.TextAlign.CENTER, width=50)
     req_field = ft.TextField(value='Nothing yet', text_align=ft.TextAlign.CENTER, width=400)
     add_field = ft.TextField(value='Add player here', text_align=ft.TextAlign.CENTER, width=400)
 
-    def get_players():
-        ret = requests.get(url + '/players')
+    def get_def():
+        ret = requests.get(url)
         req_field.value = str(ret.content)
         page.update()
 
-    def add_player():
-        bruh = requests.post(url)
+    def get_players():
+        ret = requests.get(url + '/players', )
+        req_field.value = str(ret.content)
+        page.update()
+
+    def add_player(player):
+        requests.post(url + '/db?item=' + player)
+        get_players()
 
     def route_change(route):
         page.views.clear()
@@ -28,10 +37,12 @@ def main(page: ft.Page):
                 [
                     ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
                     # ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
+                    ft.ElevatedButton("get general", on_click=lambda _: get_def()),
                     ft.ElevatedButton("get request", on_click=lambda _: get_players()),
-                    ft.ElevatedButton("add player", on_click=lambda _: add_player()),
+                    ft.ElevatedButton("add player", on_click=lambda _: add_player(add_field.value)),
                     req_field,
                     add_field,
+                    timer,
                 ],
             )
         )
@@ -56,5 +67,11 @@ def main(page: ft.Page):
     page.on_view_pop = view_pop
     page.go(page.route)
 
+    while int(timer.value) > 0:
+        time.sleep(1)
+        timer.value = int(timer.value) - 1
+        page.update()
+
 
 ft.app(target=main)
+
