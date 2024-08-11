@@ -71,8 +71,6 @@ def main(page: ft.Page):
         timer.value = int(timer.value) - 1
         page.update()
 
-    print("Hello world")
-
 
 ft.app(target=main)
 
