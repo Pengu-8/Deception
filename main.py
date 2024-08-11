@@ -5,7 +5,6 @@ import time
 url = 'http://127.0.0.1:8000'
 
 
-
 def main(page: ft.Page):
 
     page.title = "Routes Example"
