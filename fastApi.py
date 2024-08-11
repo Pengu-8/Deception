@@ -11,7 +11,7 @@ def get_root():
 
 @app.get('/players')
 def get_players():
-    return player_list
+    return {player_list}
 
 @app.post('/db')
 def add_player(player):
