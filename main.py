@@ -17,12 +17,12 @@ def main(page: ft.Page):
 
     def get_def():
         ret = requests.get(url)
-        req_field.value = str(ret.content)
+        req_field.value = str(ret.json())
         page.update()
 
     def get_players():
         ret = requests.get(url + '/players', )
-        req_field.value = str(ret.content)
+        req_field.value = str(ret.json())
         page.update()
 
     def add_player(player):
