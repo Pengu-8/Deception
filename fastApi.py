@@ -1,8 +1,8 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+import fastapi
 import uvicorn
 
-app = FastAPI()
+
+app = fastapi.FastAPI()
 
 game_info = {
     'player': []
@@ -21,6 +21,7 @@ def get_players():
 def add_player(item: str):
     game_info['player'].append(item)
     return game_info['player']
+
 
 uvicorn.run(app, host='127.0.0.1', port=8000)
 

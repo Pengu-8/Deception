@@ -2,6 +2,7 @@ import flet as ft
 import requests
 import time
 
+
 url = 'http://127.0.0.1:8000'
 
 
@@ -10,7 +11,7 @@ def main(page: ft.Page):
     page.title = "Routes Example"
 
     # number = ft.TextField(value='0', text_align=ft.TextAlign.CENTER, width=80)
-    timer = ft.Text(value='30', text_align=ft.TextAlign.CENTER, width=50)
+    timer = ft.Text(value='300', text_align=ft.TextAlign.CENTER, width=50)
     req_field = ft.TextField(value='Nothing yet', text_align=ft.TextAlign.CENTER, width=400)
     add_field = ft.TextField(value='Add player here', text_align=ft.TextAlign.CENTER, width=400)
 
@@ -73,4 +74,5 @@ def main(page: ft.Page):
 
 
 ft.app(target=main)
+
 
