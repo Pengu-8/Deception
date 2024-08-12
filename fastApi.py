@@ -1,21 +1,27 @@
-from fastapi import FastAPI
+import fastapi
 import uvicorn
 
-player_list: list[str] = []
 
-app = FastAPI()
+app = fastapi.FastAPI()
+
+game_info = {
+    'player': []
+}
+
 
 @app.get('/')
 def get_root():
-    return {'home': 'page'}
+    return game_info
 
 @app.get('/players')
 def get_players():
-    return player_list
+    return game_info['player']
 
 @app.post('/db')
-def add_player(player):
-    player_list.append(player)
+def add_player(item: str):
+    game_info['player'].append(item)
+    return game_info['player']
+
 
 uvicorn.run(app, host='127.0.0.1', port=8000)
 
