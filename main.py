@@ -208,9 +208,7 @@ def main(page: ft.Page):
         list_of_players = ""
         for player in get_players():
             list_of_players += f"{player}\n"
-        return list_of_players
+        return list_of_players # fix this
 
 
 ft.app(target=main, name='game')
-
-
