@@ -9,7 +9,7 @@ url = 'http://127.0.0.1:8000'
 
 def main(page: ft.Page):
 
-    page.title = "Routes Example"
+    page.title = "test App"
 
     number = ft.TextField(value='0', text_align=ft.TextAlign.CENTER, width=80)
     timer = ft.Text(value='300', text_align=ft.TextAlign.CENTER, width=50)
