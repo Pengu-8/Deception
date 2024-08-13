@@ -6,6 +6,7 @@ import time
 url = 'http://127.0.0.1:8000'
 
 
+
 def main(page: ft.Page):
 
     page.title = "Routes Example"
@@ -36,7 +37,7 @@ def main(page: ft.Page):
                 "/",
                 [
                     ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    # ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
+                    ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
                     ft.ElevatedButton("get general", on_click=lambda _: get_def()),
                     ft.ElevatedButton("get request", on_click=lambda _: get_players()),
                     ft.ElevatedButton("add player", on_click=lambda _: add_player(add_field.value)),
@@ -73,6 +74,6 @@ def main(page: ft.Page):
         page.update()
 
 
-ft.app(target=main)
+ft.app(target=main, name='game')
 
 
