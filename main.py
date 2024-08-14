@@ -2,13 +2,10 @@ import flet as ft
 import requests
 import time
 
-
-url = 'http://127.0.0.1:8000'
-
-
-
 def main(page: ft.Page):
 
+
+    url = 'http://127.0.0.1:8001'
     page.title = "test App"
 
     number = ft.TextField(value='0', text_align=ft.TextAlign.CENTER, width=80)
@@ -46,7 +43,7 @@ def main(page: ft.Page):
                 "/",
                 [
                     ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    ft.ElevatedButton("Play", on_click=lambda _:page.go("/lobby")),
+                    ft.ElevatedButton("Play", on_click=lambda _: page.go("/lobby")),
                     ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
                     ft.ElevatedButton("add player", on_click=lambda _: add_player(add_field.value)),
                     req_field,
@@ -202,7 +199,6 @@ def main(page: ft.Page):
                 gtime.value = int(gtime.value) - 1
                 page.update()
             page.go("/store")
-
 
 
 ft.app(target=main, name='game')
