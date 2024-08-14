@@ -82,6 +82,7 @@ def main(page: ft.Page):
                         ft.ElevatedButton("Start as Liar", on_click=lambda _: page.go("/liar")),
                         ft.ElevatedButton("Start as Player", on_click=lambda _: page.go("/player")),
                         ft.ElevatedButton("Leave Lobby", on_click=lambda _: page.go("/lobby")),
+                        ft.Text(value=f"{lobby_list()}", text_align=ft.TextAlign.CENTER, width=100)
                     ],
                 )
             )
@@ -199,6 +200,12 @@ def main(page: ft.Page):
                 gtime.value = int(gtime.value) - 1
                 page.update()
             page.go("/store")
+
+    def lobby_list():
+        list_of_players = ""
+        for player in get_players():
+            list_of_players += f"{player}\n"
+        return list_of_players
 
 
 ft.app(target=main, name='game')
