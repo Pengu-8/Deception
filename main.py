@@ -12,6 +12,9 @@ def main(page: ft.Page):
             self.lobby: str | None = lobby
 
     user = User()
+    page.bgcolor = ft.colors.WHITE
+    username: str = ''
+    lobby: str | None = None
 
     url = 'http://127.0.0.1:8001'
     page.title = "Deception"
@@ -21,18 +24,42 @@ def main(page: ft.Page):
         page.go("/lobby_choose")
 
     def route_change(route):
-        username_entry = ft.TextField(value=user.username, text_align=ft.TextAlign.CENTER, width=400)
+        username_entry = ft.TextField(value='', text_align=ft.TextAlign.CENTER, width=400)
+        # title_image = ft.Image(
+        #     src="Title.jpg",
+        #     fit=ft.ImageFit.COVER,  # Image fitting method
+        #     width=500,  # Width of the image
+        #     height=100  # Height of the image
+        # )
+        image_button = ft.Image(
+            src="placeholder.png",
+            fit=ft.ImageFit.COVER,  # Image fitting method
+            width=100,  # Width of the image
+            height=100  # Height of the image
+
+        )
 
         page.views.clear()
+
         if page.route == "/":
+            page.update()
             page.views.append(
+
                 ft.View(
                     "/",
                     [
-                        ft.Text(value="Deception", text_align=ft.TextAlign.CENTER),
+                        ft.Image(
+                            src = "Title.png",
+                            width=1000,
+                            height=300,
+                            border_radius=ft.border_radius.all(10),
+                        ),
+                        ft.Text(value="Deception", text_align=ft.TextAlign.CENTER, size= 60, color="red"),
+                        ft.Text("Username"),
                         username_entry,
                         ft.ElevatedButton("Play", on_click=lambda _: confirm_username(user, username_entry.value)),
                         ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
+                        ft.ElevatedButton(content=image_button,on_click=lambda _:page.go("/rules"))
                     ],
                 )
             )
