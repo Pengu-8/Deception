@@ -11,7 +11,7 @@ def main(page: ft.Page):
     lobby: str | None = None
 
     url = 'http://127.0.0.1:8001'
-    page.title = "deception"
+    page.title = "Deception"
 
 
     # def get_players():
@@ -26,188 +26,185 @@ def main(page: ft.Page):
 
 
     def route_change(route):
-
-        username_entry = ft.TextField(value='Add player here', text_align=ft.TextAlign.CENTER, width=400)
+        ft.Text("Deception", size = 600, color = "black", weight = ft.FontWeight.W_500)
+        ft.Text("Username")
+        username_entry = ft.TextField(value='', text_align=ft.TextAlign.CENTER, width=400)
 
         page.views.clear()
-        page.views.append(
-            ft.View(
-                "/",
-                [
-                    ft.Text(value="Deception", text_align=ft.TextAlign.CENTER),
-                    username_entry,
-                    ft.ElevatedButton("Play", on_click=lambda _: None),
-                    ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
-                ],
-            )
-        )
-        if page.route == "/lobby_choose":
-            lobby1 = ft.ElevatedButton("Join Lobby 1", on_click=lambda _: None)
-            lobby2 = ft.ElevatedButton("Join Lobby 2", on_click=lambda _: page.go("/waiting"))
-            lobby3 = ft.ElevatedButton("Join Lobby 3", on_click=lambda _: page.go("/waiting"))
-            lobby4 = ft.ElevatedButton("Join Lobby 4", on_click=lambda _: page.go("/waiting"))
-
+        if page.route == "/":
             page.views.append(
                 ft.View(
-                    "/lobby",
+                    "/",
+                    [
+                        ft.Text(value="Deception", text_align=ft.TextAlign.CENTER),
+                        username_entry,
+                        ft.ElevatedButton("Play", on_click=lambda _: page.go("/lobby_choose")),
+                        ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
+                    ],
+                )
+            )
+        if page.route == "/lobby_choose":
+            page.views.append(
+                ft.View(
+                    "/lobby_choose",
                     [
                         ft.AppBar(title=ft.Text("Join a lobby"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        lobby1,
-                        lobby2,
-                        lobby3,
-                        lobby4,
+                        ft.ElevatedButton("Join Lobby 1", on_click=lambda _: page.go("/waiting")),
+                        ft.ElevatedButton("Join Lobby 2", on_click=lambda _: page.go("/waiting")),
+                        ft.ElevatedButton("Join Lobby 3", on_click=lambda _: page.go("/waiting")),
+                        ft.ElevatedButton("Join Lobby 4", on_click=lambda _: page.go("/waiting")),
                         ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                     ]
                 )
             )
-            if page.route == "/store":
-                page.views.append(
-                    ft.View(
-                        "/store",
-                        [
-                            ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
-                            ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
-                        ],
-                    )
+        if page.route == "/store":
+            page.views.append(
+                ft.View(
+                    "/store",
+                    [
+                        ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                    ],
                 )
-            if page.route == "/rules":
-                page.views.append(
-                    ft.View(
-                        "/rules",
-                        [
-                            ft.AppBar(title=ft.Text("Rules"), bgcolor=ft.colors.SURFACE_VARIANT),
-                            ft.Text("How To Play"),
-                            ft.Text("Setup:"),
-                            ft.Text("Objective: \
-                        Liars: Successfully deceive the Players by lying about the word to avoid detection. \
-                        Players: Identify and vote out all Liars before they equal or outnumber the Players."),
-                            ft.Text("Roles: \
-                        Liars: A certain number of players are randomly assigned as Liars. \
-                        Players: The rest of the players are designated as Players."),
-                            ft.Text("Words: \
-                        At the beginning of each round, a word is chosen.\
-                        Liars: Receive 10-20% of the word (minimum of 1 letter).\
-                        Players: Receive the full word."),
-                            ft.Text("Gameplay:"),
-                            ft.Text("Discussion Phase:"),
-                            ft.Text("Duration: 1 minute.\
-                        Players and Liars discuss their word without revealing the actual word or showing their screens.\
-                        The goal is to identify inconsistencies in others' descriptions to detect the Liars."),
-                            ft.Text("Voting Phase:\
-                        After the discussion, all players must vote on who they think the Liar(s) is/are.\
-                        The player(s) with the most votes are revealed and removed from the game."),
-                            ft.Text("End of Round:\
-                        If all Liars are correctly identified and voted out, the game ends, and the Players win.\
-                        If any Liars remain, the game continues to the next round with a new word."),
-                            ft.Text("Win Conditions:"),
-                            ft.Text("Players Win: If all Liars are identified and voted out before the number of Liars equals the number of Players.\
-                        Liars Win: If the number of Liars becomes equal to or greater than the number of Players at any point in the game."),
-                            ft.Text("Additional Rules:"),
-                            ft.Text("In case of a tie during voting, a coin will be flipped and one player will be out.\
-                        Players can only vote for a specific individual once per game."),
-                            ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
-                        ],
-                    )
+            )
+        if page.route == "/rules":
+            page.views.append(
+                ft.View(
+                    "/rules",
+                    [
+                        ft.AppBar(title=ft.Text("Rules"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Text("How To Play"),
+                        ft.Text("Setup:"),
+                        ft.Text("Objective: \
+                    Liars: Successfully deceive the Players by lying about the word to avoid detection. \
+                    Players: Identify and vote out all Liars before they equal or outnumber the Players."),
+                        ft.Text("Roles: \
+                    Liars: A certain number of players are randomly assigned as Liars. \
+                    Players: The rest of the players are designated as Players."),
+                        ft.Text("Words: \
+                    At the beginning of each round, a word is chosen.\
+                    Liars: Receive 10-20% of the word (minimum of 1 letter).\
+                    Players: Receive the full word."),
+                        ft.Text("Gameplay:"),
+                        ft.Text("Discussion Phase:"),
+                        ft.Text("Duration: 1 minute.\
+                    Players and Liars discuss their word without revealing the actual word or showing their screens.\
+                    The goal is to identify inconsistencies in others' descriptions to detect the Liars."),
+                        ft.Text("Voting Phase:\
+                    After the discussion, all players must vote on who they think the Liar(s) is/are.\
+                    The player(s) with the most votes are revealed and removed from the game."),
+                        ft.Text("End of Round:\
+                    If all Liars are correctly identified and voted out, the game ends, and the Players win.\
+                    If any Liars remain, the game continues to the next round with a new word."),
+                        ft.Text("Win Conditions:"),
+                        ft.Text("Players Win: If all Liars are identified and voted out before the number of Liars equals the number of Players.\
+                    Liars Win: If the number of Liars becomes equal to or greater than the number of Players at any point in the game."),
+                        ft.Text("Additional Rules:"),
+                        ft.Text("In case of a tie during voting, a coin will be flipped and one player will be out.\
+                    Players can only vote for a specific individual once per game."),
+                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                    ],
                 )
-            if page.route == "/waiting":
-                page.views.append(
-                    ft.View(
-                        "/waiting",
-                        [
-                            ft.AppBar(title=ft.Text("Waiting Area"), bgcolor=ft.colors.SURFACE_VARIANT),
-                            ft.ElevatedButton("Start as Liar", on_click=lambda _: page.go("/liar")),
-                            ft.ElevatedButton("Start as Player", on_click=lambda _: page.go("/player")),
-                            ft.ElevatedButton("Leave Lobby", on_click=lambda _: page.go("/lobby")),
-                            ft.Text(value=f"{lobby_list()}", text_align=ft.TextAlign.CENTER, width=100)
-                        ],
-                    )
+            )
+        if page.route == "/waiting":
+            page.views.append(
+                ft.View(
+                    "/waiting",
+                    [
+                        ft.AppBar(title=ft.Text("Waiting Area"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.ElevatedButton("Start as Liar", on_click=lambda _: page.go("/liar")),
+                        ft.ElevatedButton("Start as Player", on_click=lambda _: page.go("/player")),
+                        ft.ElevatedButton("Leave Lobby", on_click=lambda _: page.go("/lobby")),
+                        ft.Text(value=f"{lobby_list()}", text_align=ft.TextAlign.CENTER, width=100)
+                    ],
                 )
-            if page.route == "/liar":
-                pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
+            )
+        if page.route == "/liar":
+            pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/liar",
                     [
                         ft.AppBar(title=ft.Text("You are the ops (liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
                         pregame_time,
-                    ],
-                )
+                ],
             )
+        )
             general_timer(pregame_time)
-            if page.route == "/player":
-                pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
+        if page.route == "/player":
+            pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-                ft.View(
-                    "/player",
-                    [
-                        ft.AppBar(title=ft.Text("You are a real one (not liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        pregame_time,
-                    ],
-                )
+            ft.View(
+                "/player",
+                [
+                    ft.AppBar(title=ft.Text("You are a real one (not liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    pregame_time,
+                ],
             )
+        )
             general_timer(pregame_time)
-            if page.route == "/discussion":
-                discussion_time = ft.Text(value='3', text_align=ft.TextAlign.CENTER, width=100)
+        if page.route == "/discussion":
+            discussion_time = ft.Text(value='3', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-                ft.View(
-                    "/discussion",
-                    [
-                        ft.AppBar(title=ft.Text("Discuss."), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.Text("Who is the op?"),
-                        discussion_time,
-                    ],
-                )
+            ft.View(
+                "/discussion",
+                [
+                    ft.AppBar(title=ft.Text("Discuss."), bgcolor=ft.colors.SURFACE_VARIANT),
+                    ft.Text("Who is the op?"),
+                    discussion_time,
+                ],
             )
+        )
             general_timer(discussion_time)
-            if page.route == "/voting":
-                vote_time = ft.Text(value='6', text_align=ft.TextAlign.CENTER, width=100)
+        if page.route == "/voting":
+            vote_time = ft.Text(value='6', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-                ft.View(
-                    "/voting",
-                    [
-                        ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        vote_time,
-                    ],
-                )
+            ft.View(
+                "/voting",
+                [
+                    ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    vote_time,
+                ],
             )
+        )
             general_timer(vote_time)
-            if page.route == "/liarwin":
-                status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
+        if page.route == "/liarwin":
+            status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-                ft.View(
-                    "/liarwin",
-                    [
-                        ft.AppBar(title=ft.Text("Liar Wins"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        status_time,
-                    ],
-                )
+            ft.View(
+                "/liarwin",
+                [
+                    ft.AppBar(title=ft.Text("Liar Wins"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    status_time,
+                ],
             )
+        )
             general_timer(status_time)
-            if page.route == "/playerwin":
-                status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
+        if page.route == "/playerwin":
+            status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-                ft.View(
-                    "/playerwin",
-                    [
-                        ft.AppBar(title=ft.Text("Players Win"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        status_time,
-                    ],
-                )
+            ft.View(
+                "/playerwin",
+                [
+                    ft.AppBar(title=ft.Text("Players Win"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    status_time,
+                ],
             )
+        )
             general_timer(status_time)
-            if page.route == "/liaringame":
-                status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
+        if page.route == "/liaringame":
+            status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-                ft.View(
-                    "/liaringame",
-                    [
-                        ft.AppBar(title=ft.Text("Liar is still in the game."), bgcolor=ft.colors.SURFACE_VARIANT),
-                        status_time,
-                    ],
-                )
+            ft.View(
+                "/liaringame",
+                [
+                    ft.AppBar(title=ft.Text("Liar is still in the game."), bgcolor=ft.colors.SURFACE_VARIANT),
+                    status_time,
+                ],
             )
+        )
             general_timer(status_time)
-            page.update()
+        page.update()
 
     def view_pop(view):
         page.views.pop()
