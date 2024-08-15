@@ -201,8 +201,10 @@ def main(page: ft.Page):
             page.go("/store")
 
     def lobby_list():
+        response = requests.get(f"{url}/players")
+        players = response.json()
         list_of_players = ""
-        for player in get_players():
+        for player in players:
             list_of_players += f"{player}\n"
         return list_of_players
 
