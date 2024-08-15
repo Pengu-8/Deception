@@ -44,6 +44,7 @@ def main(page: ft.Page):
                     ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
                     ft.ElevatedButton("Play", on_click=lambda _: page.go("/lobby")),
                     ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
+                    ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
                     ft.ElevatedButton("add player", on_click=lambda _: add_player(add_field.value)),
                     req_field,
                     add_field,
@@ -68,6 +69,45 @@ def main(page: ft.Page):
                     "/store",
                     [
                         ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                    ],
+                )
+            )
+        if page.route == "/rules":
+            page.views.append(
+                ft.View(
+                    "/rules",
+                    [
+                        ft.AppBar(title=ft.Text("Rules"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Text("How To Play"),
+                        ft.Text("Setup:"),
+                        ft.Text("Objective: \
+                        Liars: Successfully deceive the Players by lying about the word to avoid detection. \
+                        Players: Identify and vote out all Liars before they equal or outnumber the Players."),
+                        ft.Text("Roles: \
+                        Liars: A certain number of players are randomly assigned as Liars. \
+                        Players: The rest of the players are designated as Players."),
+                        ft.Text("Words: \
+                        At the beginning of each round, a word is chosen.\
+                        Liars: Receive 10-20% of the word (minimum of 1 letter).\
+                        Players: Receive the full word."),
+                        ft.Text("Gameplay:"),
+                        ft.Text("Discussion Phase:"),
+                        ft.Text("Duration: 1 minute.\
+                        Players and Liars discuss their word without revealing the actual word or showing their screens.\
+                        The goal is to identify inconsistencies in others' descriptions to detect the Liars."),
+                        ft.Text("Voting Phase:\
+                        After the discussion, all players must vote on who they think the Liar(s) is/are.\
+                        The player(s) with the most votes are revealed and removed from the game."),
+                        ft.Text("End of Round:\
+                        If all Liars are correctly identified and voted out, the game ends, and the Players win.\
+                        If any Liars remain, the game continues to the next round with a new word."),
+                        ft.Text("Win Conditions:"),
+                        ft.Text("Players Win: If all Liars are identified and voted out before the number of Liars equals the number of Players.\
+                        Liars Win: If the number of Liars becomes equal to or greater than the number of Players at any point in the game."),
+                        ft.Text("Additional Rules:"),
+                        ft.Text("In case of a tie during voting, a coin will be flipped and one player will be out.\
+                        Players can only vote for a specific individual once per game."),
                         ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                     ],
                 )
@@ -115,7 +155,8 @@ def main(page: ft.Page):
                 ft.View(
                     "/discussion",
                     [
-                        ft.AppBar(title=ft.Text("Discuss, who is the op?"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.AppBar(title=ft.Text("Discuss."), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Text("Who is the op?"),
                         discussion_time,
                     ],
                 )
