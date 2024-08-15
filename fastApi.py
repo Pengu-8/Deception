@@ -73,7 +73,7 @@ lobby_limit: int = 10
 
 game_info = {
     'lobby1': {
-        'in_game': False,
+        'can_join': True,
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -81,7 +81,7 @@ game_info = {
         'used_words': []
     },
     'lobby2': {
-        'in_game': False,
+        'can_join': True,
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -89,7 +89,7 @@ game_info = {
         'used_words': []
     },
     'lobby3': {
-        'in_game': False,
+        'can_join': True,
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -97,7 +97,7 @@ game_info = {
         'used_words': []
     },
     'lobby4': {
-        'in_game': False,
+        'can_join': True,
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -120,17 +120,21 @@ def hide_word(word: str, hide_perc=0.5) -> str:
 def get_root():
     return game_info
 
+@app.get('/lobby_status')
+def get_lobby_status(lobby: str):
+    return game_info[lobby]['can_join']
+
 @app.get('/players')
-def get_players():
-    return game_info['lobby1']['active_players']
+def get_players(lobby: str):
+    return game_info[lobby]['active_players']
 
 @app.post('/db')
-def add_player(item: str):
-    game_info['lobby1']['active_players'].append(item)
-    return game_info['lobby1']['active_players']
+def add_player(lobby: str, player: str):
+    game_info[lobby]['active_players'].append(player)
+    return game_info[lobby]['active_players']
 
 
-# uvicorn.run(app, host='127.0.0.1', port=8001)
+uvicorn.run(app, host='127.0.0.1', port=8001)
 
 if __name__ == '__main__':
     print(hide_word('courtyard', 0.5))

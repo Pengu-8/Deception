@@ -6,29 +6,22 @@ PREGAME_PAGE_TIME = 10
 
 
 def main(page: ft.Page):
+    class User:
+        def __init__(self, username='', lobby=None):
+            self.username: str = username
+            self.lobby: str | None = lobby
 
-    username: str = ''
-    lobby: str | None = None
+    user = User()
 
     url = 'http://127.0.0.1:8001'
     page.title = "Deception"
 
-
-    # def get_players():
-    #     ret = requests.get(url + '/players', )
-    #     req_field.value = str(ret.json())
-    #     page.update()
-
-    # def add_player(player):
-    #     requests.post(url + '/db?item=' + player)
-    #     get_players()
-
-
+    def confirm_username(player: User, u_name):
+        player.username = u_name
+        page.go("/lobby_choose")
 
     def route_change(route):
-        ft.Text("Deception", size = 600, color = "black", weight = ft.FontWeight.W_500)
-        ft.Text("Username")
-        username_entry = ft.TextField(value='', text_align=ft.TextAlign.CENTER, width=400)
+        username_entry = ft.TextField(value=user.username, text_align=ft.TextAlign.CENTER, width=400)
 
         page.views.clear()
         if page.route == "/":
@@ -38,33 +31,31 @@ def main(page: ft.Page):
                     [
                         ft.Text(value="Deception", text_align=ft.TextAlign.CENTER),
                         username_entry,
-                        ft.ElevatedButton("Play", on_click=lambda _: page.go("/lobby_choose")),
+                        ft.ElevatedButton("Play", on_click=lambda _: confirm_username(user, username_entry.value)),
                         ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
                     ],
                 )
             )
         if page.route == "/lobby_choose":
+            def go_into_lobby(player: User, lobby):
+                player.lobby = lobby
+                can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
+                if can_join:
+                    page.go("/waiting")
+                back = requests.post(url + '/db?item=' + user.username)
+                print(back.json)
+
             page.views.append(
                 ft.View(
                     "/lobby_choose",
                     [
                         ft.AppBar(title=ft.Text("Join a lobby"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.ElevatedButton("Join Lobby 1", on_click=lambda _: page.go("/waiting")),
-                        ft.ElevatedButton("Join Lobby 2", on_click=lambda _: page.go("/waiting")),
-                        ft.ElevatedButton("Join Lobby 3", on_click=lambda _: page.go("/waiting")),
-                        ft.ElevatedButton("Join Lobby 4", on_click=lambda _: page.go("/waiting")),
+                        ft.ElevatedButton("Join Lobby 1", on_click=lambda _: go_into_lobby(user, 'lobby1')),
+                        ft.ElevatedButton("Join Lobby 2", on_click=lambda _: go_into_lobby(user, 'lobby2')),
+                        ft.ElevatedButton("Join Lobby 3", on_click=lambda _: go_into_lobby(user, 'lobby3')),
+                        ft.ElevatedButton("Join Lobby 4", on_click=lambda _: go_into_lobby(user, 'lobby4')),
                         ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                     ]
-                )
-            )
-        if page.route == "/store":
-            page.views.append(
-                ft.View(
-                    "/store",
-                    [
-                        ft.AppBar(title=ft.Text("Store"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
-                    ],
                 )
             )
         if page.route == "/rules":
