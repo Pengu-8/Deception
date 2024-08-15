@@ -5,7 +5,7 @@ import time
 def main(page: ft.Page):
 
     url = 'http://127.0.0.1:8001'
-    page.title = "test App"
+    page.title = "deception"
 
     number = ft.TextField(value='0', text_align=ft.TextAlign.CENTER, width=80)
     timer = ft.Text(value='300', text_align=ft.TextAlign.CENTER, width=50)
@@ -41,7 +41,7 @@ def main(page: ft.Page):
             ft.View(
                 "/",
                 [
-                    ft.AppBar(title=ft.Text("Flet app"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    ft.AppBar(title=ft.Text("Deception"), bgcolor=ft.colors.SURFACE_VARIANT),
                     ft.ElevatedButton("Play", on_click=lambda _: page.go("/lobby")),
                     ft.ElevatedButton("Visit Store", on_click=lambda _: page.go("/store")),
                     ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
