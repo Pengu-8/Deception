@@ -1,3 +1,3 @@
-start flet run --android
+start flet run --ios
 start python fastApi.py
 
