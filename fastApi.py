@@ -140,6 +140,7 @@ def start_game(lobby: str):
             liar = random.sample(players, k=1)[0]
             game_info[lobby]['liars'].append(liar)
             game_info[lobby]['active_players'].remove(liar)
+
     else:
         for _ in range(3):
             liar = random.sample(players, k=1)[0]

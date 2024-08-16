@@ -130,7 +130,7 @@ def main(page: ft.Page):
                     status.value = "Not ready"
                 page.update()
 
-            lobby_player_list = ft.Text('Something')
+            lobby_player_list = ft.Text('Lobby Player List Placeholder')
             ready_status = ft.Text("Not ready")
 
             page.views.append(
