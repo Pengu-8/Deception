@@ -173,18 +173,6 @@ def new_round(lobby: str):
                 break
 
 
-    # print(game_info[lobby]['current_word'])
-    # print(game_info[lobby]['used_words'])
-
-    # make sure in the get_word api call, the players who are the
-    # get random word and set the lobby's current word to that
-    # in the active players should get the full word, the liars should get
-    # hidden word, use the hide_word function
-
-
-
-
-
 @app.get('/')
 def get_root():
     return game_info
@@ -199,9 +187,11 @@ def get_lobby_status(lobby: str):
 def get_players(lobby: str):
     return game_info[lobby]['active_players']
 
+
 @app.get('/liar_list')
 def get_liars(lobby: str):
     return game_info[lobby]['liars']
+
 
 @app.post('/send_vote')
 def vote_send(lobby: str, voted_player: str):
