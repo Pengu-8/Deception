@@ -3,7 +3,9 @@ import requests
 import time
 
 PREGAME_PAGE_TIME = 10
-
+DISCUSSION_TIME = 120
+VOTING_TIME = 30
+WINNER_TIME = 15
 
 def main(page: ft.Page):
     class User:
@@ -120,11 +122,12 @@ def main(page: ft.Page):
                             content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
                             alignment=ft.alignment.center,
                         ),
+                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/liar"))
                     ],
                 )
             )
         if page.route == "/lobby_choose":
-            page.theme_mode = ft.colors.BLACK
+            page.theme_mode = ft.ThemeMode.DARK
 
             def go_into_lobby(player: User, lob):
                 player.lobby = lob
@@ -197,19 +200,17 @@ def main(page: ft.Page):
                         ft.Text("Objective: \
                     Liars: Successfully deceive the Players by lying about the word to avoid detection. \
                     Players: Identify and vote out all Liars before they equal or outnumber the Players."),
-                        ft.Text("Roles: \
-                    Liars: A certain number of players are randomly assigned as Liars. \
-                    Players: The rest of the players are designated as Players."),
                         ft.Text("Words: \
                     At the beginning of each round, a word is chosen.\
-                    Liars: Receive 10-20% of the word (minimum of 1 letter).\
+                    Liars: Receive 40-50% of the word.\
                     Players: Receive the full word."),
                         ft.Text("Gameplay:"),
                         ft.Text("Discussion Phase:"),
-                        ft.Text("Duration: 1 minute.\
+                        ft.Text("Duration: 2 minute.\
                     Players and Liars discuss their word without revealing the actual word or showing their screens.\
                     The goal is to identify inconsistencies in others' descriptions to detect the Liars."),
-                        ft.Text("Voting Phase:\
+                        ft.Text("Voting Phase:"),
+                        ft.Text("Duration:30 seconds.\
                     After the discussion, all players must vote on who they think the Liar(s) is/are.\
                     The player(s) with the most votes are revealed and removed from the game."),
                         ft.Text("End of Round:\
@@ -252,12 +253,22 @@ def main(page: ft.Page):
                 ft.View(
                     "/waiting",
                     [
-                        wait_cat,
+                        ft.Container(
+                            content=wait_cat,
+                            alignment=ft.alignment.center,
+                        ),
+
                         ft.AppBar(title=ft.Text(f"Lobby {user.lobby[-1]}"), bgcolor=ft.colors.SURFACE_VARIANT),
                         ready_status,
                         lobby_player_list,
-                        ft.ElevatedButton("Ready", on_click=lambda _: ready_up(user, ready_status)),
-                        ft.ElevatedButton("Leave Lobby", on_click=lambda _: leave_lobby(user)),
+                        ft.Container(
+                            content=ft.ElevatedButton("Ready", on_click=lambda _: ready_up(user, ready_status)),
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=ft.ElevatedButton("Leave Lobby", on_click=lambda _: leave_lobby(user)),
+                            alignment=ft.alignment.center,
+                        ),
                     ]
                 )
             )
@@ -278,14 +289,27 @@ def main(page: ft.Page):
                 page.update()
 
         if page.route == "/liar":
+            page.theme_mode = ft.ThemeMode.DARK
             pregame_time = ft.Text(value=f'{PREGAME_PAGE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            pregame_timer = ft.Container(height=500,
+                                         alignment=ft.alignment.bottom_left,
+                                         margin=0,
+                                         content=pregame_time,
+                                         )
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [pregame_timer]),
+
+            )
             page.views.append(
                 ft.View(
                     "/liar",
                     [
-                        ft.AppBar(title=ft.Text("You are the ops (liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.Text(value=f'The word is {user.my_word}'),
-                        pregame_time,
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='liarpage.png',
+                                     ), backgroundcontainer]))]),
+                        ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -293,14 +317,27 @@ def main(page: ft.Page):
             general_timer(pregame_time)
 
         if page.route == "/player":
+            page.theme_mode = ft.ThemeMode.LIGHT
             pregame_time = ft.Text(value=f'{PREGAME_PAGE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            pregame_timer = ft.Container(height=500,
+                                        alignment=ft.alignment.bottom_left,
+                                        margin=0,
+                                        content=pregame_time,
+                                        )
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [pregame_timer]),
+
+            )
             page.views.append(
                 ft.View(
                     "/player",
-                    [
-                        ft.AppBar(title=ft.Text("You are a real one (not liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.Text(value=f'The word is {user.my_word}'),
-                        pregame_time,
+                        [
+                            ft.Column([ft.Container(content=ft.Stack([
+                                ft.Image(src='playerpage.png',
+                                         ), backgroundcontainer]))]),
+                            ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -308,44 +345,70 @@ def main(page: ft.Page):
             general_timer(pregame_time)
 
         if page.route == "/discussion":
-            discussion_time = ft.Text(value='120', text_align=ft.TextAlign.CENTER, width=100)
+            page.theme_mode = ft.ThemeMode.DARK
+            discussion_time = ft.Text(value=f'{DISCUSSION_TIME}', text_align=ft.TextAlign.CENTER,size=50, weight=ft.FontWeight.W_100, width=100)
+            discusstimer = ft.Container(height=400,
+                             alignment=ft.alignment.bottom_center,
+                             margin=0,
+                             content=discussion_time,
+                                             )
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [discusstimer]),
+
+            )
             page.views.append(
                 ft.View(
                     "/discussion",
                     [
-                        ft.AppBar(title=ft.Text("Discuss."), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.Text("Who is the op?"),
-                        discussion_time,
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='DiscussPage.png',
+                                     ), backgroundcontainer]))])
                     ],
                 )
             )
             general_timer(discussion_time)
         if page.route == "/voting":
-            vote_time = ft.Text(value='30', text_align=ft.TextAlign.CENTER, width=100)
-            page.views.append(
-                ft.View(
+            vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            view= ft.View(
                     "/voting",
                     [
                         ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
                         vote_time,
                     ],
                 )
+            page.views.append(
+                view
+                #iterate through list of players
+                #append each as button
+                #make button irresponsive after a click - or switch to new screen
             )
             general_timer(vote_time)
         if page.route == "/liarwin":
-            status_time = ft.Text(value='15', text_align=ft.TextAlign.CENTER, width=100)
+            status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            wintimer = ft.Container(height=400,
+                                        alignment=ft.alignment.bottom_center,
+                                        margin=0,
+                                        content=status_time,
+                                        )
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [wintimer]))
             page.views.append(
                 ft.View(
                     "/liarwin",
                     [
-                        ft.AppBar(title=ft.Text("Liar Wins"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        status_time,
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='placeholder.png',
+                                     ), backgroundcontainer]))])
                     ],
                 )
             )
             general_timer(status_time)
         if page.route == "/playerwin":
-            status_time = ft.Text(value='15', text_align=ft.TextAlign.CENTER, width=100)
+            status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/playerwin",
@@ -375,18 +438,18 @@ def main(page: ft.Page):
                 gtime.value = int(gtime.value) - 1
                 page.update()
             page.go("/discussion")
-        elif int(gtime.value) == 3:
+        elif int(gtime.value) == DISCUSSION_TIME:
             while int(gtime.value) > 0:
                 time.sleep(1)
                 gtime.value = int(gtime.value) - 1
                 page.update()
             page.go("/voting")
-        elif int(gtime.value) == 6:
+        elif int(gtime.value) == VOTING_TIME:
             while int(gtime.value) > 0:
                 time.sleep(1)
                 gtime.value = int(gtime.value) - 1
                 page.update()
-            page.go("/store")
+            page.go("/")
 
 ft.app(target=main, name='game',view=ft.AppView.WEB_BROWSER,assets_dir='assets')
 
