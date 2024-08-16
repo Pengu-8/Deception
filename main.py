@@ -14,7 +14,6 @@ def main(page: ft.Page):
             self.my_word: str | None = None
 
     user = User()
-    page.theme_mode = ft.ThemeMode.LIGHT
     username: str = ''
     lobby: str | None = None
 
@@ -55,9 +54,42 @@ def main(page: ft.Page):
                             border_radius=ft.border_radius.all(10),
                         )
 
+        lobby1_button = ft.Image(
+            src="./lobbybut1.png",
+            width=300,
+            height=100,
+            border_radius=ft.border_radius.all(10),
+        )
+        lobby2_button = ft.Image(
+            src="./lobbybut2.png",
+            width=300,
+            height=100,
+            border_radius=ft.border_radius.all(10),
+        )
+        lobby3_button = ft.Image(
+            src="./lobbybut3.png",
+            width=300,
+            height=100,
+            border_radius=ft.border_radius.all(10),
+        )
+        lobby4_button = ft.Image(
+            src="./lobbybut4.png",
+            width=300,
+            height=100,
+            border_radius=ft.border_radius.all(10),
+        )
+
+        wait_cat = ft.Image(
+                            src ="./waitcat.PNG",
+                            width=150,
+                            height=150,
+                            border_radius=ft.border_radius.all(10),
+                        )
+
         page.views.clear()
 
         if page.route == "/":
+            page.theme_mode = ft.ThemeMode.LIGHT
             page.update()
             page.views.append(
 
@@ -92,19 +124,8 @@ def main(page: ft.Page):
                 )
             )
         if page.route == "/lobby_choose":
-            # background = ft.Container(
-            #     image_src="LobbyBackground.png"
-            # )
-            #
-            # button_container1 = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.ElevatedButton("Join Lobby 1", on_click=lambda _: go_into_lobby(user, 'lobby1')),
-            # )
-            #
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Stack([background,button_container1])
-            # )
+            page.theme_mode = ft.colors.BLACK
+
             def go_into_lobby(player: User, lob):
                 player.lobby = lob
                 can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
@@ -112,20 +133,54 @@ def main(page: ft.Page):
                     page.go("/waiting")
                 back = requests.post(url + '/enter_lobby?lobby=' + player.lobby + "&player=" + player.username).json()
 
+            button_container1 = ft.Container(height=300,
+                                             alignment=ft.alignment.bottom_center,
+                                             margin=0,
+                                             content=ft.ElevatedButton(content=lobby1_button,
+                                                                       on_click=lambda _: go_into_lobby(user,
+                                                                                                        'lobby1')),
+                                             )
+            button_container2 = ft.Container(height=250,
+                                             alignment=ft.alignment.center,
+                                             margin=-75,
+                                             content=ft.ElevatedButton(content=lobby2_button,
+                                                                       on_click=lambda _: go_into_lobby(user, 'lobby2'))
+                                             )
+            button_container3 = ft.Container(height=250,
+                                             alignment=ft.alignment.center,
+                                             margin=-75,
+                                             content=ft.ElevatedButton(content=lobby3_button,
+                                                                       on_click=lambda _: go_into_lobby(user, 'lobby3'))
+                                             )
+            button_container4 = ft.Container(height=250,
+                                             margin=-75,
+                                             alignment=ft.alignment.center,
+                                             content=ft.ElevatedButton(content=lobby4_button,
+                                                                       on_click=lambda _: go_into_lobby(user, 'lobby4'))
+                                             )
+            button_container5 = ft.Container(height=30,
+                                             margin=5,
+                                             alignment=ft.alignment.center,
+                                             content=ft.ElevatedButton("Go Home",
+                                                                       on_click=lambda _: page.go('/'))
+                                             )
+
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [button_container1, button_container2, button_container3, button_container4,
+                     button_container5]),
+
+            )
+
             page.views.append(
                 ft.View(
                     "/lobby_choose",
                     [
-                        # ft.Column([ft.Container(content=ft.Stack([
-                        #     ft.Image(src='LobbyBackground.png',
-                        #              ),backgroundcontainer]))]),
-                        ft.AppBar(title=ft.Text("Join a lobby"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='LobbyBackground.png',
+                                     ),backgroundcontainer]))]),
 
-                        ft.ElevatedButton("Join Lobby 1", on_click=lambda _: go_into_lobby(user, 'lobby1')),
-                        ft.ElevatedButton("Join Lobby 2", on_click=lambda _: go_into_lobby(user, 'lobby2')),
-                        ft.ElevatedButton("Join Lobby 3", on_click=lambda _: go_into_lobby(user, 'lobby3')),
-                        ft.ElevatedButton("Join Lobby 4", on_click=lambda _: go_into_lobby(user, 'lobby4')),
-                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                     ]
                 )
             )
@@ -171,7 +226,6 @@ def main(page: ft.Page):
                 )
             )
         if page.route == "/waiting":
-
             def retrieve_word(player):
                 word_req = requests.get(url + '/get_word?lobby=' + player.lobby + '&player=' + player.username).json()
                 user.my_word = word_req
@@ -198,6 +252,7 @@ def main(page: ft.Page):
                 ft.View(
                     "/waiting",
                     [
+                        wait_cat,
                         ft.AppBar(title=ft.Text(f"Lobby {user.lobby[-1]}"), bgcolor=ft.colors.SURFACE_VARIANT),
                         ready_status,
                         lobby_player_list,
