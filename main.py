@@ -6,56 +6,103 @@ PREGAME_PAGE_TIME = 10
 
 
 def main(page: ft.Page):
-
-    url = 'http://127.0.0.1:8001'
-    page.title = "Deception"
-
     class User:
         def __init__(self, username='', lobby=None):
             self.username: str = username
             self.lobby: str | None = lobby
 
     user = User()
+    page.theme_mode = ft.ThemeMode.LIGHT
+    username: str = ''
+    lobby: str | None = None
 
-    # def confirm_username(player: User, u_name):
-    #     player.username = u_name
-    #     page.go("/lobby_choose")
+    url = 'http://127.0.0.1:8001'
+    page.title = "Deception"
 
-    # def go_into_lobby(player: User, lobby):
-    #     player.lobby = lobby
-    #     can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
-    #     if can_join:
-    #         page.go("/waiting")
-    #     back = requests.post(url + '/db?lobby=' + player.lobby + "&player=" + player.username).json()
-
-    # def leave_lobby(player: User):
-    #     player_list = requests.post(url + '/player_leave?lobby=' + player.lobby + "&player=" + player.username)
-    #     player.lobby = None
-    #     page.go('/lobby_choose')
-
+    def confirm_username(player: User, u_name):
+        player.username = u_name
+        page.go("/lobby_choose")
 
     def route_change(route):
-        def confirm_username(player: User, u_name):
-            player.username = u_name
-            page.go("/lobby_choose")
+        username_entry = ft.TextField(value='', text_align=ft.TextAlign.CENTER, width=400)
+        title_image = ft.Image(
+                            src ="./Title.png",
+                            width=500,
+                            height=200,
+                            border_radius=ft.border_radius.all(10),
+                        )
 
-        username_entry = ft.TextField(value=user.username, text_align=ft.TextAlign.CENTER, width=400)
+        home_cat = ft.Image(
+                            src ="./HomeCat.jpg",
+                            width=150,
+                            height=150,
+                            border_radius=ft.border_radius.all(10),
+                        )
+
+        play_button = ft.Image(
+                            src ="./Play.png",
+                            width=300,
+                            height=100,
+                            border_radius=ft.border_radius.all(10),
+                        )
+
+        rules_button = ft.Image(
+                            src ="./Rules.png",
+                            width=300,
+                            height=100,
+                            border_radius=ft.border_radius.all(10),
+                        )
 
         page.views.clear()
+
         if page.route == "/":
+            page.update()
             page.views.append(
+
                 ft.View(
                     "/",
-                    [
-                        ft.Text(value="Deception", text_align=ft.TextAlign.CENTER),
-                        username_entry,
-                        ft.ElevatedButton("Play", on_click=lambda _: confirm_username(user, username_entry.value)),
-                        ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
+
+                    [ft.Container(
+                        content=title_image,
+                        alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=home_cat,
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=ft.Text("Username"),
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=username_entry,
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=ft.ElevatedButton(content=play_button, on_click=lambda _: confirm_username(user, username_entry.value)),
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
+                            alignment=ft.alignment.center,
+                        ),
                     ],
                 )
             )
         if page.route == "/lobby_choose":
-
+            # background = ft.Container(
+            #     image_src="LobbyBackground.png"
+            # )
+            #
+            # button_container1 = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.ElevatedButton("Join Lobby 1", on_click=lambda _: go_into_lobby(user, 'lobby1')),
+            # )
+            #
+            # backgroundcontainer = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.Stack([background,button_container1])
+            # )
             def go_into_lobby(player: User, lobby):
                 player.lobby = lobby
                 can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
@@ -67,7 +114,11 @@ def main(page: ft.Page):
                 ft.View(
                     "/lobby_choose",
                     [
+                        # ft.Column([ft.Container(content=ft.Stack([
+                        #     ft.Image(src='LobbyBackground.png',
+                        #              ),backgroundcontainer]))]),
                         ft.AppBar(title=ft.Text("Join a lobby"), bgcolor=ft.colors.SURFACE_VARIANT),
+
                         ft.ElevatedButton("Join Lobby 1", on_click=lambda _: go_into_lobby(user, 'lobby1')),
                         ft.ElevatedButton("Join Lobby 2", on_click=lambda _: go_into_lobby(user, 'lobby2')),
                         ft.ElevatedButton("Join Lobby 3", on_click=lambda _: go_into_lobby(user, 'lobby3')),
@@ -76,6 +127,9 @@ def main(page: ft.Page):
                     ]
                 )
             )
+
+
+            page.update()
         if page.route == "/rules":
             page.views.append(
                 ft.View(
@@ -256,7 +310,16 @@ def main(page: ft.Page):
                 page.update()
             page.go("/store")
 
+    def lobby_list():
+        response = requests.get(f"{url}/players")
+        players = response.json()
+        list_of_players = ""
+        for player in players:
+            list_of_players += f"{player}\n"
+        return list_of_players
 
-ft.app(target=main, name='game')
+ft.app(target=main, name='game',view=ft.AppView.WEB_BROWSER,assets_dir='assets')
+
+# ft.app(target=main, name='game')
 
 
