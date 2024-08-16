@@ -372,7 +372,7 @@ def main(page: ft.Page):
 
             def send_vote(voted_player='default'):
                 ret = requests.post(url + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player)
-                page.go('/votedone')    # goes to waiting after voted page
+                page.go('/votedone')
 
             view = ft.View(
                     "/voting",
@@ -393,7 +393,19 @@ def main(page: ft.Page):
             )
             page.update()
             general_timer(vote_time, '/')
-            page.update()
+
+            check_game_state = requests.get(url + '/get_game_state?lobby=' + user.lobby)
+            if check_game_state == 'PLAYERWIN':
+                page.go('/playerwin')
+            elif check_game_state == 'LIARWIN':
+                page.go('/liarwin')
+            else:
+                if '_' in user.my_word:
+                    page.go('/liar')
+                else:
+                    page.go('/player')
+
+
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             wintimer = ft.Container(height=400,
