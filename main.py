@@ -4,7 +4,7 @@ import time
 
 PREGAME_PAGE_TIME = 15
 DISCUSSION_TIME = 10    # 120
-VOTING_TIME = 15        # 25
+VOTING_TIME = 30        # 25
 WINNER_TIME = 15
 
 def main(page: ft.Page):
@@ -41,7 +41,7 @@ def main(page: ft.Page):
                         )
 
         play_button = ft.Image(
-                            src ="./Play.png",
+                            src="./Play.png",
                             width=300,
                             height=100,
                             border_radius=ft.border_radius.all(10),
@@ -369,9 +369,9 @@ def main(page: ft.Page):
         if page.route == "/voting":
             vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, width=100)
 
-            def send_vote(player: User, voted_player):
-                ret = requests.post(url + '/send_vote?lobby=' + player.lobby + '&voted_player=' + voted_player)
-                print("Debug ret: ", ret.json())
+            def send_vote(voted_player='default'):
+                ret = requests.post(url + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player)
+                page.go('/')    # goes to waiting after voted page
 
             view = ft.View(
                     "/voting",
@@ -383,17 +383,16 @@ def main(page: ft.Page):
 
             # get all players
             players = requests.get(url + '/players?lobby=' + user.lobby).json() + requests.get(url + '/liar_list?lobby=' + user.lobby).json()
-            print("Debug players: ", players)
 
-            for vote_player in players.remove(user.username):
-                print("Debug player: ", vote_player)
-                view.controls.append(ft.ElevatedButton(text=vote_player, on_click=lambda _: send_vote(user, vote_player)))
-
+            players.remove(user.username)
+            for player in players:
+                view.controls.append(ft.ElevatedButton(text=player, on_click=lambda _: send_vote(player)))
             page.views.append(
                 view
             )
-
+            page.update()
             general_timer(vote_time, '/')
+
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             wintimer = ft.Container(height=400,

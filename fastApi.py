@@ -193,20 +193,17 @@ def get_liars(lobby: str):
     return game_info[lobby]['liars']
 
 
-@app.post('/send_vote')
-def vote_send(lobby: str, voted_player: str):
-    print(voted_player)
-    game_info[lobby]['vote_count'].append(voted_player)
-    print(game_info[lobby]['vote_count'])
-    return game_info[lobby]['vote_count']
-
-
 @app.get('/get_word')
 def get_word(lobby: str, player: str):
     word = game_info[lobby]['current_word']
     if player in game_info[lobby]['active_players']:
         return word
     return hide_word(word)
+
+@app.post('/send_vote')
+def vote_send(lobby: str, voted_player: str):
+    game_info[lobby]['vote_count'].append(voted_player)
+    return game_info[lobby]['vote_count']
 
 
 @app.post('/enter_lobby')
