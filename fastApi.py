@@ -78,6 +78,7 @@ game_info = {
         'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
+        'vote_count': [],
         'liars': [],
         'current_word': '',
         'used_words': []
@@ -87,6 +88,7 @@ game_info = {
         'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
+        'vote_count': [],
         'liars': [],
         'current_word': '',
         'used_words': []
@@ -96,6 +98,7 @@ game_info = {
         'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
+        'vote_count': [],
         'liars': [],
         'current_word': '',
         'used_words': []
@@ -105,6 +108,7 @@ game_info = {
         'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
+        'vote_count': [],
         'liars': [],
         'current_word': '',
         'used_words': []
@@ -194,6 +198,17 @@ def get_lobby_status(lobby: str):
 @app.get('/players')
 def get_players(lobby: str):
     return game_info[lobby]['active_players']
+
+@app.get('/liar_list')
+def get_liars(lobby: str):
+    return game_info[lobby]['liars']
+
+@app.post('/send_vote')
+def vote_send(lobby: str, voted_player: str):
+    print(voted_player)
+    game_info[lobby]['vote_count'].append(voted_player)
+    print(game_info[lobby]['vote_count'])
+    return game_info[lobby]['vote_count']
 
 
 @app.get('/get_word')

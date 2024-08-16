@@ -2,9 +2,9 @@ import flet as ft
 import requests
 import time
 
-PREGAME_PAGE_TIME = 10
-DISCUSSION_TIME = 120
-VOTING_TIME = 30
+PREGAME_PAGE_TIME = 15
+DISCUSSION_TIME = 10    # 120
+VOTING_TIME = 15        # 25
 WINNER_TIME = 15
 
 def main(page: ft.Page):
@@ -12,12 +12,10 @@ def main(page: ft.Page):
         def __init__(self, username='', lobby=None):
             self.username: str = username
             self.lobby: str | None = lobby
-            self.get_word: bool = False
+            self.ready: bool = False
             self.my_word: str | None = None
 
     user = User()
-    username: str = ''
-    lobby: str | None = None
 
     url = 'http://127.0.0.1:8001'
     page.title = "Deception"
@@ -27,7 +25,7 @@ def main(page: ft.Page):
         page.go("/lobby_choose")
 
     def route_change(route):
-        username_entry = ft.TextField(value='', text_align=ft.TextAlign.CENTER, width=400)
+        username_entry = ft.TextField(value=user.username, text_align=ft.TextAlign.CENTER, width=400)
         title_image = ft.Image(
                             src ="./Title.png",
                             width=500,
@@ -240,14 +238,14 @@ def main(page: ft.Page):
                 back = requests.post(url + '/ready_up?lobby=' + user.lobby + '&player=' + user.username).json()
                 if player.username in back:
                     status.value = 'Ready to go!'
-                    user.get_word = True
+                    user.ready = True
                 else:
                     status.value = "Not ready"
-                    user.get_word = False
+                    user.ready = False
                 page.update()
 
-            lobby_player_list = ft.Text('')
             ready_status = ft.Text("Not ready")
+            lobby_player_list = ft.Text('')
 
             page.views.append(
                 ft.View(
@@ -273,11 +271,10 @@ def main(page: ft.Page):
                 )
             )
             while True:
-                time.sleep(2)
+                time.sleep(1)
                 player_list = requests.get(url + '/players?lobby=' + user.lobby).json()
-                if user.get_word:
+                if user.ready:
                     retrieve_word(user)
-                    print(f'User: {user.username} {user.my_word}')
                     if user.my_word:
                         if '_' in user.my_word:
                             page.go('/liar')
@@ -314,7 +311,7 @@ def main(page: ft.Page):
                 )
             )
             page.update()
-            general_timer(pregame_time)
+            general_timer(pregame_time, '/discussion')
 
         if page.route == "/player":
             page.theme_mode = ft.ThemeMode.LIGHT
@@ -342,7 +339,7 @@ def main(page: ft.Page):
                 )
             )
             page.update()
-            general_timer(pregame_time)
+            general_timer(pregame_time, '/discussion')
 
         if page.route == "/discussion":
             page.theme_mode = ft.ThemeMode.DARK
@@ -368,23 +365,35 @@ def main(page: ft.Page):
                     ],
                 )
             )
-            general_timer(discussion_time)
+            general_timer(discussion_time, '/voting')
         if page.route == "/voting":
             vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            view= ft.View(
+
+            def send_vote(player: User, voted_player):
+                ret = requests.post(url + '/send_vote?lobby=' + player.lobby + '&voted_player=' + voted_player)
+                print("Debug ret: ", ret.json())
+
+            view = ft.View(
                     "/voting",
                     [
                         ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
                         vote_time,
                     ],
                 )
+
+            # get all players
+            players = requests.get(url + '/players?lobby=' + user.lobby).json() + requests.get(url + '/liar_list?lobby=' + user.lobby).json()
+            print("Debug players: ", players)
+
+            for vote_player in players.remove(user.username):
+                print("Debug player: ", vote_player)
+                view.controls.append(ft.ElevatedButton(text=vote_player, on_click=lambda _: send_vote(user, player)))
+
             page.views.append(
                 view
-                #iterate through list of players
-                #append each as button
-                #make button irresponsive after a click - or switch to new screen
             )
-            general_timer(vote_time)
+
+            general_timer(vote_time, '/')
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             wintimer = ft.Container(height=400,
@@ -406,7 +415,7 @@ def main(page: ft.Page):
                     ],
                 )
             )
-            general_timer(status_time)
+            general_timer(status_time, '/')
         if page.route == "/playerwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
@@ -418,9 +427,12 @@ def main(page: ft.Page):
                     ],
                 )
             )
-            general_timer(status_time)
+            general_timer(status_time, '/')
         page.update()
 
+    def finish_game(player: User):
+        player.lobby = None
+        player.my_word = None
 
     def view_pop(view):
         page.views.pop()
@@ -431,25 +443,13 @@ def main(page: ft.Page):
     page.on_view_pop = view_pop
     page.go(page.route)
 
-    def general_timer(gtime):
-        if int(gtime.value) == PREGAME_PAGE_TIME:
-            while int(gtime.value) > 0:
-                time.sleep(1)
-                gtime.value = int(gtime.value) - 1
-                page.update()
-            page.go("/discussion")
-        elif int(gtime.value) == DISCUSSION_TIME:
-            while int(gtime.value) > 0:
-                time.sleep(1)
-                gtime.value = int(gtime.value) - 1
-                page.update()
-            page.go("/voting")
-        elif int(gtime.value) == VOTING_TIME:
-            while int(gtime.value) > 0:
-                time.sleep(1)
-                gtime.value = int(gtime.value) - 1
-                page.update()
-            page.go("/")
+    def general_timer(gtime, next_page):
+        while int(gtime.value) > 0:
+            time.sleep(1)
+            gtime.value = int(gtime.value) - 1
+            page.update()
+        page.go(next_page)
+
 
 ft.app(target=main, name='game',view=ft.AppView.WEB_BROWSER,assets_dir='assets')
 
