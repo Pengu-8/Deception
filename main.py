@@ -90,7 +90,6 @@ def main(page: ft.Page):
 
         if page.route == "/":
             page.theme_mode = ft.ThemeMode.LIGHT
-            page.update()
             page.views.append(
 
                 ft.View(
@@ -120,10 +119,11 @@ def main(page: ft.Page):
                             content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
                             alignment=ft.alignment.center,
                         ),
-                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedone"))
+                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedout"))
                     ],
                 )
             )
+            page.update()
         if page.route == "/lobby_choose":
             page.theme_mode = ft.ThemeMode.DARK
 
@@ -374,10 +374,24 @@ def main(page: ft.Page):
                 ret = requests.post(url + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player)
                 page.go('/votedone')
 
+            votetimer = ft.Container(height=400,
+                                    alignment=ft.alignment.bottom_center,
+                                    margin=0,
+                                    content=vote_time,
+                                    )
+            backgroundcontainer = ft.Container(
+                height=200,
+                alignment=ft.alignment.center,
+                margin=10,
+                content=ft.Column(
+                    [votetimer]))
+
             view = ft.View(
                     "/voting",
                     [
-                        ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='vote.png',
+                                     ), backgroundcontainer]))]),
                         vote_time,
                     ],
                 )
@@ -387,7 +401,7 @@ def main(page: ft.Page):
 
             players.remove(user.username)
             for player in players:
-                view.controls.append(ft.ElevatedButton(text=player, on_click=lambda _: send_vote(player)))
+                backgroundcontainer.content.controls.append(ft.ElevatedButton(text=player, on_click=lambda _: send_vote(player)))
             page.views.append(
                 view
             )
@@ -422,7 +436,7 @@ def main(page: ft.Page):
                     "/liarwin",
                     [
                         ft.Column([ft.Container(content=ft.Stack([
-                            ft.Image(src='placeholder.png',
+                            ft.Image(src='liarwin.PNG',
                                      ), backgroundcontainer]))])
                     ],
                 )
@@ -472,7 +486,7 @@ def main(page: ft.Page):
                 ft.View(
                     "/continue",
                     [
-                        ft.AppBar(title=ft.Text("The game continues"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Image(src="continue.PNG"),
                         status_time,
                     ],
                 )
@@ -487,7 +501,7 @@ def main(page: ft.Page):
                 ft.View(
                     "/votedout",
                     [
-                        ft.AppBar(title=ft.Text("you have been voted out"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Image(src='votedout.PNG'),
                         status_time,
                     ],
                 )
