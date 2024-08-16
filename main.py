@@ -105,12 +105,12 @@ def main(page: ft.Page):
             #     alignment=ft.alignment.center,
             #     content=ft.Stack([background,button_container1])
             # )
-            def go_into_lobby(player: User, lobby):
-                player.lobby = lobby
+            def go_into_lobby(player: User, lob):
+                player.lobby = lob
                 can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
                 if can_join:
                     page.go("/waiting")
-                back = requests.post(url + '/db?lobby=' + player.lobby + "&player=" + player.username).json()
+                back = requests.post(url + '/enter_lobby?lobby=' + player.lobby + "&player=" + player.username).json()
 
             page.views.append(
                 ft.View(
@@ -129,7 +129,6 @@ def main(page: ft.Page):
                     ]
                 )
             )
-
 
             page.update()
         if page.route == "/rules":
@@ -184,7 +183,6 @@ def main(page: ft.Page):
 
             def ready_up(player: User, status):
                 back = requests.post(url + '/ready_up?lobby=' + user.lobby + '&player=' + user.username).json()
-                # print(back)
                 if player.username in back:
                     status.value = 'Ready to go!'
                     user.get_word = True
@@ -193,7 +191,7 @@ def main(page: ft.Page):
                     user.get_word = False
                 page.update()
 
-            lobby_player_list = ft.Text('Lobby Player List Placeholder')
+            lobby_player_list = ft.Text('')
             ready_status = ft.Text("Not ready")
 
             page.views.append(
@@ -213,11 +211,14 @@ def main(page: ft.Page):
                 player_list = requests.get(url + '/players?lobby=' + user.lobby).json()
                 if user.get_word:
                     retrieve_word(user)
+                    if '_' in user.my_word:
+                        page.go('/liar')
+                    page.go('/player')
                 lobby_player_list.value = '\n'.join(player_list)
                 page.update()
 
         if page.route == "/liar":
-            pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
+            pregame_time = ft.Text(value=f'{PREGAME_PAGE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/liar",
@@ -229,7 +230,7 @@ def main(page: ft.Page):
             )
             general_timer(pregame_time)
         if page.route == "/player":
-            pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
+            pregame_time = ft.Text(value='10', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/player",
@@ -241,7 +242,7 @@ def main(page: ft.Page):
             )
             general_timer(pregame_time)
         if page.route == "/discussion":
-            discussion_time = ft.Text(value='3', text_align=ft.TextAlign.CENTER, width=100)
+            discussion_time = ft.Text(value='120', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/discussion",
@@ -254,7 +255,7 @@ def main(page: ft.Page):
             )
             general_timer(discussion_time)
         if page.route == "/voting":
-            vote_time = ft.Text(value='6', text_align=ft.TextAlign.CENTER, width=100)
+            vote_time = ft.Text(value='30', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/voting",
@@ -266,7 +267,7 @@ def main(page: ft.Page):
             )
             general_timer(vote_time)
         if page.route == "/liarwin":
-            status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
+            status_time = ft.Text(value='15', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/liarwin",
@@ -278,7 +279,7 @@ def main(page: ft.Page):
             )
             general_timer(status_time)
         if page.route == "/playerwin":
-            status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
+            status_time = ft.Text(value='15', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/playerwin",
@@ -320,14 +321,6 @@ def main(page: ft.Page):
                 gtime.value = int(gtime.value) - 1
                 page.update()
             page.go("/store")
-
-    def lobby_list():
-        response = requests.get(f"{url}/players")
-        players = response.json()
-        list_of_players = ""
-        for player in players:
-            list_of_players += f"{player}\n"
-        return list_of_players
 
 ft.app(target=main, name='game',view=ft.AppView.WEB_BROWSER,assets_dir='assets')
 

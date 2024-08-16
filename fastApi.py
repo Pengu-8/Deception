@@ -130,6 +130,8 @@ def hide_word(word: str, hide_perc=0.5) -> str:
 
 def start_game(lobby: str):
 
+    game_info[lobby]['can_join'] = False
+
     # assigns players and liars
     players: list[str] = game_info[lobby]['active_players']
     if len(players) <= 5:
@@ -149,9 +151,31 @@ def start_game(lobby: str):
             game_info[lobby]['liars'].append(liar)
             game_info[lobby]['active_players'].remove(liar)
 
-    # get random word and set the lobby's current word to that
+    new_round(lobby)
+
+
+def new_round(lobby: str):
+    check = len(game_info[lobby]['active_players']) - len(game_info[lobby]['liars'])
+    while True:
+        if check <= 2:
+            check_word = random.sample(hard_word_list, k=1)[0]
+            if check_word not in game_info[lobby]['used_words']:
+                game_info[lobby]['current_word'] = check_word
+                game_info[lobby]['used_words'].append(check_word)
+                break
+        else:
+            check_word = random.sample(hard_word_list, k=1)[0]
+            if check_word not in game_info[lobby]['used_words']:
+                game_info[lobby]['current_word'] = check_word
+                game_info[lobby]['used_words'].append(check_word)
+                break
+
+
+    # print(game_info[lobby]['current_word'])
+    # print(game_info[lobby]['used_words'])
 
     # make sure in the get_word api call, the players who are the
+    # get random word and set the lobby's current word to that
     # in the active players should get the full word, the liars should get
     # hidden word, use the hide_word function
 
@@ -166,7 +190,7 @@ def get_root():
 
 @app.get('/lobby_status')
 def get_lobby_status(lobby: str):
-    return game_info[lobby]['can_join']
+    return len(game_info[lobby]['active_players']) < LOBBY_MAXIMUM
 
 
 @app.get('/players')
@@ -176,19 +200,24 @@ def get_players(lobby: str):
 
 @app.get('/get_word')
 def get_word(lobby: str, player: str):
-    pass
-    # return either full or blanked out word depending if the player is in
-    # liar or active player list
+    if not game_info[lobby]['can_join']:
+        word = game_info[lobby]['current_word']
+        if player in game_info[lobby]['active_players']:
+            return word
+        return hide_word(word)
 
-@app.post('/db')
+
+@app.post('/enter_lobby')
 def add_player(lobby: str, player: str):
-    game_info[lobby]['active_players'].append(player)
+    if player not in game_info[lobby]['active_players']:
+        game_info[lobby]['active_players'].append(player)
     return game_info[lobby]['active_players']
 
 
 @app.post('/player_leave')
 def remove_player(lobby: str, player: str):
-    game_info[lobby]['active_players'].remove(player)
+    while player in game_info[lobby]['active_players']:
+        game_info[lobby]['active_players'].remove(player)
     return game_info[lobby]['active_players']
 
 
@@ -198,6 +227,7 @@ def toggle_ready(lobby: str, player: str):
         game_info[lobby]['players_ready'].remove(player)
     else:
         game_info[lobby]['players_ready'].append(player)
+
     if len(game_info[lobby]['players_ready']) == len(game_info[lobby]['active_players']) \
             and LOBBY_MINIMUM <= len(game_info[lobby]['active_players']) <= LOBBY_MAXIMUM:
         start_game(lobby)
