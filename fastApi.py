@@ -116,13 +116,6 @@ game_info = {
 }
 
 
-
-def get_random_word(difficulty: str):
-    if difficulty == 'easy':
-        return random.sample(easy_word_list, 1)
-    return random.sample(hard_word_list, 1)
-
-
 def hide_word(word: str, hide_perc=0.5) -> str:
     word = list(word)
     remove_lets = random.sample(word, k=int(len(list(word)) * hide_perc))
@@ -156,27 +149,30 @@ def init_game(lobby: str):
     new_round(lobby)
 
 
-def check_winner_after_vote(lobby: str):
-    count = {}
-    for player in game_info[lobby]['vote_count']:
-        if player in count:
-            count[player] += 1
-        else:
-            count[player] = 1
-
-    voted_out = max(count.items(), key=lambda x: x[1])
-    if voted_out in game_info[lobby]['active_players']:
-        game_info[lobby]['active_players'].remove(voted_out)
-    else:
-        game_info[lobby]['liars'].remove(voted_out)
-    game_info[lobby]['voted_out_players'].append(voted_out)
-
-    if len(game_info[lobby]['liars']) == 0:
-        return 'PLAYERWIN'
-    elif len(game_info[lobby]['active']) == len(game_info[lobby]['liars']):
-        return 'LIARWIN'
-    else:
-        new_round(lobby)
+# def check_winner_after_vote(lobby: str):
+#     count = {}
+#     for player in game_info[lobby]['vote_count']:
+#         if player in count:
+#             count[player] += 1
+#         else:
+#             count[player] = 1
+#
+#     voted_out = max(count.items(), key=lambda x: x[1])
+#
+#     if voted_out in game_info[lobby]['active_players']:
+#         game_info[lobby]['active_players'].remove(voted_out)
+#     else:
+#         game_info[lobby]['liars'].remove(voted_out)
+#     game_info[lobby]['voted_out_players'].append(voted_out)
+#
+#     game_info[lobby]['vote_count'] = []
+#
+#     if len(game_info[lobby]['liars']) == 0:
+#         return 'PLAYERWIN'
+#     elif len(game_info[lobby]['active']) == len(game_info[lobby]['liars']):
+#         return 'LIARWIN'
+#     else:
+#         new_round(lobby)
 
 
 def new_round(lobby: str):
@@ -225,8 +221,30 @@ def get_word(lobby: str, player: str):
 
 
 @app.get('/get_game_state')
-def check_winner(lobby: str):
-    return check_winner_after_vote(lobby)
+def check_winner_after_vote(lobby: str):
+    count = {}
+    for player in game_info[lobby]['vote_count']:
+        if player in count:
+            count[player] += 1
+        else:
+            count[player] = 1
+
+    voted_out = max(count.items(), key=lambda x: x[1])
+
+    if voted_out in game_info[lobby]['active_players']:
+        game_info[lobby]['active_players'].remove(voted_out)
+    else:
+        game_info[lobby]['liars'].remove(voted_out)
+    game_info[lobby]['voted_out_players'].append(voted_out)
+
+    game_info[lobby]['vote_count'] = []
+
+    if len(game_info[lobby]['liars']) == 0:
+        return 'PLAYERWIN'
+    elif len(game_info[lobby]['active']) == len(game_info[lobby]['liars']):
+        return 'LIARWIN'
+    else:
+        new_round(lobby)
 
 @app.post('/send_vote')
 def vote_send(lobby: str, voted_player: str):
