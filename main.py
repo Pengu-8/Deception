@@ -12,7 +12,8 @@ def main(page: ft.Page):
             self.lobby: str | None = lobby
 
     user = User()
-    page.bgcolor = ft.colors.WHITE
+    page.theme_mode = ft.ThemeMode.LIGHT
+    #page.theme_mode = ft.colors.WHITE
     username: str = ''
     lobby: str | None = None
 
@@ -25,19 +26,33 @@ def main(page: ft.Page):
 
     def route_change(route):
         username_entry = ft.TextField(value='', text_align=ft.TextAlign.CENTER, width=400)
-        # title_image = ft.Image(
-        #     src="Title.jpg",
-        #     fit=ft.ImageFit.COVER,  # Image fitting method
-        #     width=500,  # Width of the image
-        #     height=100  # Height of the image
-        # )
-        image_button = ft.Image(
-            src="placeholder.png",
-            fit=ft.ImageFit.COVER,  # Image fitting method
-            width=100,  # Width of the image
-            height=100  # Height of the image
+        title_image = ft.Image(
+                            src ="./Title.png",
+                            width=500,
+                            height=200,
+                            border_radius=ft.border_radius.all(10),
+                        )
 
-        )
+        home_cat = ft.Image(
+                            src ="./HomeCat.jpg",
+                            width=150,
+                            height=150,
+                            border_radius=ft.border_radius.all(10),
+                        )
+
+        play_button = ft.Image(
+                            src ="./Play.png",
+                            width=300,
+                            height=100,
+                            border_radius=ft.border_radius.all(10),
+                        )
+
+        rules_button = ft.Image(
+                            src ="./Rules.png",
+                            width=300,
+                            height=100,
+                            border_radius=ft.border_radius.all(10),
+                        )
 
         page.views.clear()
 
@@ -47,23 +62,48 @@ def main(page: ft.Page):
 
                 ft.View(
                     "/",
-                    [
-                        ft.Image(
-                            src = "Title.png",
-                            width=1000,
-                            height=300,
-                            border_radius=ft.border_radius.all(10),
+
+                    [ft.Container(
+                        content=title_image,
+                        alignment=ft.alignment.center,
                         ),
-                        ft.Text(value="Deception", text_align=ft.TextAlign.CENTER, size= 60, color="red"),
-                        ft.Text("Username"),
-                        username_entry,
-                        ft.ElevatedButton("Play", on_click=lambda _: confirm_username(user, username_entry.value)),
-                        ft.ElevatedButton("How To Play", on_click=lambda _: page.go("/rules")),
-                        ft.ElevatedButton(content=image_button,on_click=lambda _:page.go("/rules"))
+                        ft.Container(
+                            content=home_cat,
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=ft.Text("Username"),
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=username_entry,
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=ft.ElevatedButton(content=play_button, on_click=lambda _: confirm_username(user, username_entry.value)),
+                            alignment=ft.alignment.center,
+                        ),
+                        ft.Container(
+                            content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
+                            alignment=ft.alignment.center,
+                        ),
                     ],
                 )
             )
         if page.route == "/lobby_choose":
+            # background = ft.Container(
+            #     image_src="LobbyBackground.png"
+            # )
+            #
+            # button_container1 = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.ElevatedButton("Join Lobby 1", on_click=lambda _: go_into_lobby(user, 'lobby1')),
+            # )
+            #
+            # backgroundcontainer = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.Stack([background,button_container1])
+            # )
             def go_into_lobby(player: User, lobby):
                 player.lobby = lobby
                 can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
@@ -71,12 +111,15 @@ def main(page: ft.Page):
                     page.go("/waiting")
                 back = requests.post(url + '/db?item=' + user.username)
                 print(back.json)
-
             page.views.append(
                 ft.View(
                     "/lobby_choose",
                     [
+                        # ft.Column([ft.Container(content=ft.Stack([
+                        #     ft.Image(src='LobbyBackground.png',
+                        #              ),backgroundcontainer]))]),
                         ft.AppBar(title=ft.Text("Join a lobby"), bgcolor=ft.colors.SURFACE_VARIANT),
+
                         ft.ElevatedButton("Join Lobby 1", on_click=lambda _: go_into_lobby(user, 'lobby1')),
                         ft.ElevatedButton("Join Lobby 2", on_click=lambda _: go_into_lobby(user, 'lobby2')),
                         ft.ElevatedButton("Join Lobby 3", on_click=lambda _: go_into_lobby(user, 'lobby3')),
@@ -85,6 +128,9 @@ def main(page: ft.Page):
                     ]
                 )
             )
+
+
+            page.update()
         if page.route == "/rules":
             page.views.append(
                 ft.View(
@@ -261,7 +307,8 @@ def main(page: ft.Page):
             list_of_players += f"{player}\n"
         return list_of_players
 
+ft.app(target=main, name='game',view=ft.AppView.WEB_BROWSER,assets_dir='assets')
 
-ft.app(target=main, name='game')
+# ft.app(target=main, name='game')
 
 
