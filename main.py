@@ -120,7 +120,7 @@ def main(page: ft.Page):
                             content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
                             alignment=ft.alignment.center,
                         ),
-                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/liar"))
+                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedone"))
                     ],
                 )
             )
@@ -366,12 +366,13 @@ def main(page: ft.Page):
                 )
             )
             general_timer(discussion_time, '/voting')
+            page.update()
         if page.route == "/voting":
             vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, width=100)
 
             def send_vote(voted_player='default'):
                 ret = requests.post(url + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player)
-                page.go('/')    # goes to waiting after voted page
+                page.go('/votedone')    # goes to waiting after voted page
 
             view = ft.View(
                     "/voting",
@@ -392,7 +393,7 @@ def main(page: ft.Page):
             )
             page.update()
             general_timer(vote_time, '/')
-
+            page.update()
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             wintimer = ft.Container(height=400,
@@ -415,19 +416,73 @@ def main(page: ft.Page):
                 )
             )
             general_timer(status_time, '/')
+            page.update()
         if page.route == "/playerwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            wintimer = ft.Container(height=400,
+                                    alignment=ft.alignment.bottom_center,
+                                    margin=0,
+                                    content=status_time,
+                                    )
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [wintimer]))
             page.views.append(
                 ft.View(
                     "/playerwin",
                     [
-                        ft.AppBar(title=ft.Text("Players Win"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='pwin.png',
+                                     ), backgroundcontainer]))])
+                    ],
+                )
+            )
+            general_timer(status_time, '/')
+
+            page.update()
+        if page.route == "/votedone":
+            #CHANGE THE TIME OF THIS
+            page.views.append(
+                ft.View(
+                    "/votedone",
+                    [
+                            ft.Image(src="uhavevoted.PNG")
+                    ],
+                )
+            )
+            page.update()
+
+        if page.route == "/continue":
+            #CHANGE THE TIME OF THIS
+            status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            page.views.append(
+                ft.View(
+                    "/continue",
+                    [
+                        ft.AppBar(title=ft.Text("The game continues"), bgcolor=ft.colors.SURFACE_VARIANT),
                         status_time,
                     ],
                 )
             )
             general_timer(status_time, '/')
-        page.update()
+            page.update()
+
+        if page.route == "/votedout":
+            #CHANGE THE TIME OF THIS
+            status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            page.views.append(
+                ft.View(
+                    "/votedout",
+                    [
+                        ft.AppBar(title=ft.Text("you have been voted out"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        status_time,
+                    ],
+                )
+            )
+            page.update()
+            general_timer(status_time, '/')
+
 
     def finish_game(player: User):
         player.lobby = None
