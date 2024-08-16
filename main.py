@@ -387,7 +387,7 @@ def main(page: ft.Page):
 
             for vote_player in players.remove(user.username):
                 print("Debug player: ", vote_player)
-                view.controls.append(ft.ElevatedButton(text=vote_player, on_click=lambda _: send_vote(user, player)))
+                view.controls.append(ft.ElevatedButton(text=vote_player, on_click=lambda _: send_vote(user, vote_player)))
 
             page.views.append(
                 view
