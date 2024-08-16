@@ -128,9 +128,7 @@ def hide_word(word: str, hide_perc=0.5) -> str:
     return ' '.join(word)
 
 
-def start_game(lobby: str):
-
-    game_info[lobby]['can_join'] = False
+def init_game(lobby: str):
 
     # assigns players and liars
     players: list[str] = game_info[lobby]['active_players']
@@ -190,7 +188,7 @@ def get_root():
 
 @app.get('/lobby_status')
 def get_lobby_status(lobby: str):
-    return len(game_info[lobby]['active_players']) < LOBBY_MAXIMUM
+    return game_info[lobby]['can_join']
 
 
 @app.get('/players')
@@ -200,11 +198,10 @@ def get_players(lobby: str):
 
 @app.get('/get_word')
 def get_word(lobby: str, player: str):
-    if not game_info[lobby]['can_join']:
-        word = game_info[lobby]['current_word']
-        if player in game_info[lobby]['active_players']:
-            return word
-        return hide_word(word)
+    word = game_info[lobby]['current_word']
+    if player in game_info[lobby]['active_players']:
+        return word
+    return hide_word(word)
 
 
 @app.post('/enter_lobby')
@@ -230,9 +227,9 @@ def toggle_ready(lobby: str, player: str):
 
     if len(game_info[lobby]['players_ready']) == len(game_info[lobby]['active_players']) \
             and LOBBY_MINIMUM <= len(game_info[lobby]['active_players']) <= LOBBY_MAXIMUM:
-        start_game(lobby)
-    else:
-        return game_info[lobby]['players_ready']
+        game_info[lobby]['can_join'] = False
+        init_game(lobby)
+    return game_info[lobby]['players_ready']
 
 
 uvicorn.run(app, host='127.0.0.1', port=8001)

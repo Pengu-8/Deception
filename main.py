@@ -266,9 +266,14 @@ def main(page: ft.Page):
                 player_list = requests.get(url + '/players?lobby=' + user.lobby).json()
                 if user.get_word:
                     retrieve_word(user)
-                    if '_' in user.my_word:
-                        page.go('/liar')
-                    page.go('/player')
+                    print(f'User: {user.username} {user.my_word}')
+                    if user.my_word:
+                        if '_' in user.my_word:
+                            page.go('/liar')
+                            break
+                        else:
+                            page.go('/player')
+                            break
                 lobby_player_list.value = '\n'.join(player_list)
                 page.update()
 
@@ -279,23 +284,29 @@ def main(page: ft.Page):
                     "/liar",
                     [
                         ft.AppBar(title=ft.Text("You are the ops (liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Text(value=f'The word is {user.my_word}'),
                         pregame_time,
                     ],
                 )
             )
+            page.update()
             general_timer(pregame_time)
+
         if page.route == "/player":
-            pregame_time = ft.Text(value='10', text_align=ft.TextAlign.CENTER, width=100)
+            pregame_time = ft.Text(value=f'{PREGAME_PAGE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
                     "/player",
                     [
                         ft.AppBar(title=ft.Text("You are a real one (not liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Text(value=f'The word is {user.my_word}'),
                         pregame_time,
                     ],
                 )
             )
+            page.update()
             general_timer(pregame_time)
+
         if page.route == "/discussion":
             discussion_time = ft.Text(value='120', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
