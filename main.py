@@ -10,6 +10,8 @@ def main(page: ft.Page):
         def __init__(self, username='', lobby=None):
             self.username: str = username
             self.lobby: str | None = lobby
+            self.get_word: bool = False
+            self.my_word: str | None = None
 
     user = User()
     page.theme_mode = ft.ThemeMode.LIGHT
@@ -170,6 +172,11 @@ def main(page: ft.Page):
                 )
             )
         if page.route == "/waiting":
+
+            def retrieve_word(player):
+                word_req = requests.get(url + '/get_word?lobby=' + player.lobby + '&player=' + player.username).json()
+                user.my_word = word_req
+
             def leave_lobby(player: User):
                 player_list = requests.post(url + '/player_leave?lobby=' + player.lobby + "&player=" + player.username)
                 player.lobby = None
@@ -177,11 +184,13 @@ def main(page: ft.Page):
 
             def ready_up(player: User, status):
                 back = requests.post(url + '/ready_up?lobby=' + user.lobby + '&player=' + user.username).json()
-                print(back)
+                # print(back)
                 if player.username in back:
                     status.value = 'Ready to go!'
+                    user.get_word = True
                 else:
                     status.value = "Not ready"
+                    user.get_word = False
                 page.update()
 
             lobby_player_list = ft.Text('Lobby Player List Placeholder')
@@ -202,6 +211,8 @@ def main(page: ft.Page):
             while True:
                 time.sleep(2)
                 player_list = requests.get(url + '/players?lobby=' + user.lobby).json()
+                if user.get_word:
+                    retrieve_word(user)
                 lobby_player_list.value = '\n'.join(player_list)
                 page.update()
 

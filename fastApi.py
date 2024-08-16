@@ -129,6 +129,8 @@ def hide_word(word: str, hide_perc=0.5) -> str:
 
 
 def start_game(lobby: str):
+
+    # assigns players and liars
     players: list[str] = game_info[lobby]['active_players']
     if len(players) <= 5:
         liar = random.sample(players, k=1)[0]
@@ -147,8 +149,13 @@ def start_game(lobby: str):
             game_info[lobby]['liars'].append(liar)
             game_info[lobby]['active_players'].remove(liar)
 
-    # print(game_info[lobby]['active_players'])
-    # print(game_info[lobby]['liars'])
+    # get random word and set the lobby's current word to that
+
+    # make sure in the get_word api call, the players who are the
+    # in the active players should get the full word, the liars should get
+    # hidden word, use the hide_word function
+
+
 
 
 
@@ -166,6 +173,12 @@ def get_lobby_status(lobby: str):
 def get_players(lobby: str):
     return game_info[lobby]['active_players']
 
+
+@app.get('/get_word')
+def get_word(lobby: str, player: str):
+    pass
+    # return either full or blanked out word depending if the player is in
+    # liar or active player list
 
 @app.post('/db')
 def add_player(lobby: str, player: str):
