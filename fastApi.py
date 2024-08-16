@@ -69,11 +69,13 @@ hard_word_list: list[str] = [
 
 app = fastapi.FastAPI()
 
-lobby_limit: int = 10
+LOBBY_MAXIMUM: int = 10
+LOBBY_MINIMUM: int = 2
 
 game_info = {
     'lobby1': {
         'can_join': True,
+        'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -82,6 +84,7 @@ game_info = {
     },
     'lobby2': {
         'can_join': True,
+        'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -90,6 +93,7 @@ game_info = {
     },
     'lobby3': {
         'can_join': True,
+        'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -98,6 +102,7 @@ game_info = {
     },
     'lobby4': {
         'can_join': True,
+        'players_ready': [],
         'active_players': [],
         'voted_out_players': [],
         'liars': [],
@@ -105,6 +110,13 @@ game_info = {
         'used_words': []
     }
 }
+
+
+
+def get_random_word(difficulty: str):
+    if difficulty == 'easy':
+        return random.sample(easy_word_list, 1)
+    return random.sample(hard_word_list, 1)
 
 
 def hide_word(word: str, hide_perc=0.5) -> str:
@@ -116,22 +128,67 @@ def hide_word(word: str, hide_perc=0.5) -> str:
     return ' '.join(word)
 
 
+def start_game(lobby: str):
+    players: list[str] = game_info[lobby]['active_players']
+    if len(players) <= 5:
+        liar = random.sample(players, k=1)[0]
+        game_info[lobby]['liars'].append(liar)
+        game_info[lobby]['active_players'].remove(liar)
+
+    elif len(players) <= 9:
+        for _ in range(2):
+            liar = random.sample(players, k=1)[0]
+            game_info[lobby]['liars'].append(liar)
+            game_info[lobby]['active_players'].remove(liar)
+    else:
+        for _ in range(3):
+            liar = random.sample(players, k=1)[0]
+            game_info[lobby]['liars'].append(liar)
+            game_info[lobby]['active_players'].remove(liar)
+
+    # print(game_info[lobby]['active_players'])
+    # print(game_info[lobby]['liars'])
+
+
+
 @app.get('/')
 def get_root():
     return game_info
+
 
 @app.get('/lobby_status')
 def get_lobby_status(lobby: str):
     return game_info[lobby]['can_join']
 
+
 @app.get('/players')
 def get_players(lobby: str):
     return game_info[lobby]['active_players']
+
 
 @app.post('/db')
 def add_player(lobby: str, player: str):
     game_info[lobby]['active_players'].append(player)
     return game_info[lobby]['active_players']
+
+
+@app.post('/player_leave')
+def remove_player(lobby: str, player: str):
+    game_info[lobby]['active_players'].remove(player)
+    return game_info[lobby]['active_players']
+
+
+@app.post('/ready_up')
+def toggle_ready(lobby: str, player: str):
+    if player in game_info[lobby]['players_ready']:
+        game_info[lobby]['players_ready'].remove(player)
+    else:
+        game_info[lobby]['players_ready'].append(player)
+    if len(game_info[lobby]['players_ready']) == len(game_info[lobby]['active_players']) \
+            and LOBBY_MINIMUM <= len(game_info[lobby]['active_players']) <= LOBBY_MAXIMUM:
+        start_game(lobby)
+    else:
+        return game_info[lobby]['players_ready']
 
 
 uvicorn.run(app, host='127.0.0.1', port=8001)

@@ -6,6 +6,10 @@ PREGAME_PAGE_TIME = 10
 
 
 def main(page: ft.Page):
+
+    url = 'http://127.0.0.1:8001'
+    page.title = "Deception"
+
     class User:
         def __init__(self, username='', lobby=None):
             self.username: str = username
@@ -13,14 +17,28 @@ def main(page: ft.Page):
 
     user = User()
 
-    url = 'http://127.0.0.1:8001'
-    page.title = "Deception"
+    # def confirm_username(player: User, u_name):
+    #     player.username = u_name
+    #     page.go("/lobby_choose")
 
-    def confirm_username(player: User, u_name):
-        player.username = u_name
-        page.go("/lobby_choose")
+    # def go_into_lobby(player: User, lobby):
+    #     player.lobby = lobby
+    #     can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
+    #     if can_join:
+    #         page.go("/waiting")
+    #     back = requests.post(url + '/db?lobby=' + player.lobby + "&player=" + player.username).json()
+
+    # def leave_lobby(player: User):
+    #     player_list = requests.post(url + '/player_leave?lobby=' + player.lobby + "&player=" + player.username)
+    #     player.lobby = None
+    #     page.go('/lobby_choose')
+
 
     def route_change(route):
+        def confirm_username(player: User, u_name):
+            player.username = u_name
+            page.go("/lobby_choose")
+
         username_entry = ft.TextField(value=user.username, text_align=ft.TextAlign.CENTER, width=400)
 
         page.views.clear()
@@ -37,13 +55,13 @@ def main(page: ft.Page):
                 )
             )
         if page.route == "/lobby_choose":
+
             def go_into_lobby(player: User, lobby):
                 player.lobby = lobby
                 can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
                 if can_join:
                     page.go("/waiting")
-                back = requests.post(url + '/db?item=' + user.username)
-                print(back.json)
+                back = requests.post(url + '/db?lobby=' + player.lobby + "&player=" + player.username).json()
 
             page.views.append(
                 ft.View(
@@ -98,18 +116,41 @@ def main(page: ft.Page):
                 )
             )
         if page.route == "/waiting":
+            def leave_lobby(player: User):
+                player_list = requests.post(url + '/player_leave?lobby=' + player.lobby + "&player=" + player.username)
+                player.lobby = None
+                page.go('/lobby_choose')
+
+            def ready_up(player: User, status):
+                back = requests.post(url + '/ready_up?lobby=' + user.lobby + '&player=' + user.username).json()
+                print(back)
+                if player.username in back:
+                    status.value = 'Ready to go!'
+                else:
+                    status.value = "Not ready"
+                page.update()
+
+            lobby_player_list = ft.Text('Something')
+            ready_status = ft.Text("Not ready")
+
             page.views.append(
                 ft.View(
                     "/waiting",
                     [
-                        ft.AppBar(title=ft.Text("Waiting Area"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.ElevatedButton("Start as Liar", on_click=lambda _: page.go("/liar")),
-                        ft.ElevatedButton("Start as Player", on_click=lambda _: page.go("/player")),
-                        ft.ElevatedButton("Leave Lobby", on_click=lambda _: page.go("/lobby")),
-                        ft.Text(value=f"{lobby_list()}", text_align=ft.TextAlign.CENTER, width=100)
-                    ],
+                        ft.AppBar(title=ft.Text(f"Lobby {user.lobby[-1]}"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ready_status,
+                        lobby_player_list,
+                        ft.ElevatedButton("Ready", on_click=lambda _: ready_up(user, ready_status)),
+                        ft.ElevatedButton("Leave Lobby", on_click=lambda _: leave_lobby(user)),
+                    ]
                 )
             )
+            while True:
+                time.sleep(2)
+                player_list = requests.get(url + '/players?lobby=' + user.lobby).json()
+                lobby_player_list.value = '\n'.join(player_list)
+                page.update()
+
         if page.route == "/liar":
             pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
@@ -118,84 +159,73 @@ def main(page: ft.Page):
                     [
                         ft.AppBar(title=ft.Text("You are the ops (liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
                         pregame_time,
-                ],
+                    ],
+                )
             )
-        )
             general_timer(pregame_time)
         if page.route == "/player":
             pregame_time = ft.Text(value='11', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-            ft.View(
-                "/player",
-                [
-                    ft.AppBar(title=ft.Text("You are a real one (not liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    pregame_time,
-                ],
+                ft.View(
+                    "/player",
+                    [
+                        ft.AppBar(title=ft.Text("You are a real one (not liar)"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        pregame_time,
+                    ],
+                )
             )
-        )
             general_timer(pregame_time)
         if page.route == "/discussion":
             discussion_time = ft.Text(value='3', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-            ft.View(
-                "/discussion",
-                [
-                    ft.AppBar(title=ft.Text("Discuss."), bgcolor=ft.colors.SURFACE_VARIANT),
-                    ft.Text("Who is the op?"),
-                    discussion_time,
-                ],
+                ft.View(
+                    "/discussion",
+                    [
+                        ft.AppBar(title=ft.Text("Discuss."), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Text("Who is the op?"),
+                        discussion_time,
+                    ],
+                )
             )
-        )
             general_timer(discussion_time)
         if page.route == "/voting":
             vote_time = ft.Text(value='6', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-            ft.View(
-                "/voting",
-                [
-                    ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    vote_time,
-                ],
+                ft.View(
+                    "/voting",
+                    [
+                        ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        vote_time,
+                    ],
+                )
             )
-        )
             general_timer(vote_time)
         if page.route == "/liarwin":
             status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-            ft.View(
-                "/liarwin",
-                [
-                    ft.AppBar(title=ft.Text("Liar Wins"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    status_time,
-                ],
+                ft.View(
+                    "/liarwin",
+                    [
+                        ft.AppBar(title=ft.Text("Liar Wins"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        status_time,
+                    ],
+                )
             )
-        )
             general_timer(status_time)
         if page.route == "/playerwin":
             status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
-            ft.View(
-                "/playerwin",
-                [
-                    ft.AppBar(title=ft.Text("Players Win"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    status_time,
-                ],
+                ft.View(
+                    "/playerwin",
+                    [
+                        ft.AppBar(title=ft.Text("Players Win"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        status_time,
+                    ],
+                )
             )
-        )
-            general_timer(status_time)
-        if page.route == "/liaringame":
-            status_time = ft.Text(value='20', text_align=ft.TextAlign.CENTER, width=100)
-            page.views.append(
-            ft.View(
-                "/liaringame",
-                [
-                    ft.AppBar(title=ft.Text("Liar is still in the game."), bgcolor=ft.colors.SURFACE_VARIANT),
-                    status_time,
-                ],
-            )
-        )
             general_timer(status_time)
         page.update()
+
 
     def view_pop(view):
         page.views.pop()
@@ -225,14 +255,6 @@ def main(page: ft.Page):
                 gtime.value = int(gtime.value) - 1
                 page.update()
             page.go("/store")
-
-    def lobby_list():
-        response = requests.get(f"{url}/players")
-        players = response.json()
-        list_of_players = ""
-        for player in players:
-            list_of_players += f"{player}\n"
-        return list_of_players
 
 
 ft.app(target=main, name='game')
