@@ -4,7 +4,7 @@ import time
 
 PREGAME_PAGE_TIME = 15
 DISCUSSION_TIME = 10    # 120
-VOTING_TIME = 30        # 25
+VOTING_TIME = 20
 WINNER_TIME = 15
 CONTINUE_TIME = 10
 VOTED_OUT_TIME = 5
@@ -17,7 +17,6 @@ def main(page: ft.Page):
             self.lobby: str | None = lobby
             self.ready: bool = False
             self.my_word: str | None = None
-            self.user_type: str | None = None
 
     user = User()
 
@@ -403,12 +402,11 @@ def main(page: ft.Page):
 
             if int(vote_time.value) <= 0:
                 state: str = requests.get(URL + '/get_game_state?lobby=' + user.lobby + '&player=' + user.username).json()
+                print(user.username, f" state is : {state}")
                 if state == 'PLAYERWIN':
                     page.go('/playerwin')
                 elif state == 'LIARWIN':
                     page.go('/liarwin')
-                elif state == 'VOTEDOUT':
-                    page.go('/votedout')
                 elif state == 'CONTINUE':
                     page.go('/continue')
                 else:
@@ -416,7 +414,6 @@ def main(page: ft.Page):
                     print('something fucked up')
                     page.go('/')
                 ret = requests.post(URL + '/reset_vote?lobby=' + user.lobby).json()
-                print(f'ret after round reset {ret}')
 
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
@@ -499,10 +496,8 @@ def main(page: ft.Page):
             elif user.username in ret[user.lobby]['active_players']:
                 page_to_go = '/player'
                 user.my_word = requests.get(URL + '/get_word?lobby=' + user.lobby + '&player=' + user.username).json()
-            elif user.username in ret[user.lobby]['voted_out_players']:
-                page_to_go = '/votedout'
             else:
-                page_to_go = '/'
+                page_to_go = '/votedout'
             general_timer(status_time, page_to_go)
             page.update()
 

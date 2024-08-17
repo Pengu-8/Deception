@@ -70,7 +70,7 @@ hard_word_list: list[str] = [
 app = fastapi.FastAPI()
 
 LOBBY_MAXIMUM: int = 10
-LOBBY_MINIMUM: int = 2
+LOBBY_MINIMUM: int = 3
 
 game_info = {
     'lobby1': {
@@ -149,6 +149,7 @@ def init_game(lobby: str):
 
 
 def new_round(lobby: str):
+    game_info[lobby]['voted_out_players'].clear()
     check = len(game_info[lobby]['active_players']) - len(game_info[lobby]['liars'])
     while True:
         if check <= 2:
@@ -202,23 +203,20 @@ def check_winner(lobby: str, player: str):
         else:
             count[player] = 1
 
-    voted_out: str = 'DEFAULTUSERNAME'
     if len(count):
         voted_out = max(count.items(), key=lambda x: x[1])[0]
         if voted_out in game_info[lobby]['active_players']:
             game_info[lobby]['active_players'].remove(voted_out)
         if voted_out in game_info[lobby]['liars']:
             game_info[lobby]['liars'].remove(voted_out)
+
         game_info[lobby]['voted_out_players'].append(voted_out)
 
-    game_info[lobby]['voted_out_players'].clear()
 
     if len(game_info[lobby]['liars']) == 0:
         return 'PLAYERWIN'
     elif len(game_info[lobby]['active_players']) <= len(game_info[lobby]['liars']):
         return 'LIARWIN'
-    elif player == voted_out:
-        return 'VOTEDOUT'
     else:
         if len(count):
             new_round(lobby)
