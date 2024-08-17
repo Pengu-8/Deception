@@ -123,7 +123,7 @@ def main(page: ft.Page):
                             content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
                             alignment=ft.alignment.center,
                         ),
-                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedone"))
+                        # ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedone"))
                     ],
                 )
             )
@@ -376,8 +376,13 @@ def main(page: ft.Page):
         if page.route == "/voting":
             vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, width=100)
 
-            def send_vote(voted_player='default'):
-                ret = requests.post(url + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player)
+            def send_vote(voted_player):
+                print(f'voted player inital: {voted_player}')
+                voted_player = 'changed'
+                print(f'{user.username} is voting out {voted_player}')
+                ret = requests.post(url + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player).json()
+                print('return after vote')
+                print(ret)
                 page.go('/votedone')
 
             view = ft.View(
@@ -388,25 +393,28 @@ def main(page: ft.Page):
                 ],
             )
 
-            # get all players
             players = requests.get(url + '/players?lobby=' + user.lobby).json() + requests.get(url + '/liar_list?lobby=' + user.lobby).json()
 
             players.remove(user.username)
             for player in players:
-                view.controls.append(ft.ElevatedButton(text=player, on_click=lambda _: send_vote(player)))
-            page.views.append(
-                view
-            )
+                view.controls.append(ft.ElevatedButton(text=players, on_click=lambda _: send_vote(voted_player=player)))
+            page.views.append(view)
             page.update()
             general_timer(vote_time, '/votedone')
-            state = requests.get(url + '/get_game_state?lobby=' + user.lobby).json()
 
-            if state == 'PLAYERWIN':
-                page.go('/playerwin')
-            elif state == 'LIARWIN':
-                page.go('/liarwin')
-            else:
-                page.go('/continue')
+            if int(vote_time.value) <= 0:
+                state: str = requests.get(url + '/get_game_state?lobby=' + user.lobby + '&player=' + user.username).json()
+                if state == 'PLAYERWIN':
+                    page.go('/playerwin')
+                elif state == 'LIARWIN':
+                    page.go('/liarwin')
+                elif state == 'VOTEDOUT':
+                    page.go('/votedout')
+                elif state == 'CONTINUE':
+                    page.go('/continue')
+                else:
+                    # something fucked up
+                    page.go('/')
 
 
 
@@ -455,7 +463,6 @@ def main(page: ft.Page):
                 )
             )
             general_timer(status_time, '/')
-
             page.update()
 
         if page.route == "/votedone":
@@ -469,8 +476,6 @@ def main(page: ft.Page):
                 )
             )
             page.update()
-
-
 
         if page.route == "/continue":
             status_time = ft.Text(value=f'{CONTINUE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
