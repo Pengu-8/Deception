@@ -17,7 +17,6 @@ def main(page: ft.Page):
             self.lobby: str | None = lobby
             self.ready: bool = False
             self.my_word: str | None = None
-            self.user_type: str | None = None
 
     user = User()
 
@@ -123,7 +122,7 @@ def main(page: ft.Page):
                             content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
                             alignment=ft.alignment.center,
                         ),
-                        # ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedone"))
+                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedout"))
                     ],
                 )
             )
@@ -281,11 +280,9 @@ def main(page: ft.Page):
                     retrieve_word(user)
                     if user.my_word:
                         if '_' in user.my_word:
-                            user.user_type = 'liar'
                             page.go('/liar')
                             break
                         else:
-                            user.user_type = 'player'
                             page.go('/player')
                             break
                 lobby_player_list.value = '\n'.join(player_list)
@@ -393,12 +390,15 @@ def main(page: ft.Page):
                 ],
             )
 
+            # get all players
             players = requests.get(url + '/players?lobby=' + user.lobby).json() + requests.get(url + '/liar_list?lobby=' + user.lobby).json()
 
             players.remove(user.username)
             for player in players:
-                view.controls.append(ft.ElevatedButton(text=players, on_click=lambda _: send_vote(voted_player=player)))
-            page.views.append(view)
+                view.controls.append(ft.ElevatedButton(text=player, on_click=lambda _, p=player: send_vote(p)))
+            page.views.append(
+                view
+            )
             page.update()
             general_timer(vote_time, '/votedone')
 
@@ -434,7 +434,7 @@ def main(page: ft.Page):
                     "/liarwin",
                     [
                         ft.Column([ft.Container(content=ft.Stack([
-                            ft.Image(src='placeholder.png',
+                            ft.Image(src='liarwin.PNG',
                                      ), backgroundcontainer]))])
                     ],
                 )
@@ -483,7 +483,7 @@ def main(page: ft.Page):
                 ft.View(
                     "/continue",
                     [
-                        ft.AppBar(title=ft.Text("The game continues"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Image(src="continue.PNG"),
                         status_time,
                     ],
                 )
@@ -510,7 +510,7 @@ def main(page: ft.Page):
                 ft.View(
                     "/votedout",
                     [
-                        ft.AppBar(title=ft.Text("you have been voted out"), bgcolor=ft.colors.SURFACE_VARIANT),
+                        ft.Image(src='votedout.PNG'),
                         status_time,
                     ],
                 )
