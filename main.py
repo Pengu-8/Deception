@@ -17,10 +17,11 @@ def main(page: ft.Page):
             self.lobby: str | None = lobby
             self.ready: bool = False
             self.my_word: str | None = None
+            self.user_type: str | None = None
 
     user = User()
 
-    url = 'http://127.0.0.1:8001'
+    URL = 'http://127.0.0.1:8001'
     page.title = "Deception"
 
     def confirm_username(player: User, u_name):
@@ -132,10 +133,10 @@ def main(page: ft.Page):
 
             def go_into_lobby(player: User, lob):
                 player.lobby = lob
-                can_join = requests.get(url + "/lobby_status?lobby=" + player.lobby).json()
+                can_join = requests.get(URL + "/lobby_status?lobby=" + player.lobby).json()
                 if can_join:
                     page.go("/waiting")
-                back = requests.post(url + '/enter_lobby?lobby=' + player.lobby + "&player=" + player.username).json()
+                back = requests.post(URL + '/enter_lobby?lobby=' + player.lobby + "&player=" + player.username).json()
 
             button_container1 = ft.Container(height=300,
                                              alignment=ft.alignment.bottom_center,
@@ -229,16 +230,16 @@ def main(page: ft.Page):
             )
         if page.route == "/waiting":
             def retrieve_word(player: User):
-                word_req = requests.get(url + '/get_word?lobby=' + player.lobby + '&player=' + player.username).json()
+                word_req = requests.get(URL + '/get_word?lobby=' + player.lobby + '&player=' + player.username).json()
                 user.my_word = word_req
 
             def leave_lobby(player: User):
-                player_list = requests.post(url + '/player_leave?lobby=' + player.lobby + "&player=" + player.username).json()
+                player_list = requests.post(URL + '/player_leave?lobby=' + player.lobby + "&player=" + player.username).json()
                 player.lobby = None
                 page.go('/lobby_choose')
 
             def ready_up(player: User, status):
-                back = requests.post(url + '/ready_up?lobby=' + user.lobby + '&player=' + user.username).json()
+                back = requests.post(URL + '/ready_up?lobby=' + user.lobby + '&player=' + user.username).json()
                 if player.username in back:
                     status.value = 'Ready to go!'
                     user.ready = True
@@ -275,7 +276,7 @@ def main(page: ft.Page):
             )
             while True:
                 time.sleep(1)
-                player_list = requests.get(url + '/players?lobby=' + user.lobby).json()
+                player_list = requests.get(URL + '/players?lobby=' + user.lobby).json()
                 if user.ready:
                     retrieve_word(user)
                     if user.my_word:
@@ -373,11 +374,9 @@ def main(page: ft.Page):
         if page.route == "/voting":
             vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, width=100)
 
-            def send_vote(voted_player):
-                print(f'voted player inital: {voted_player}')
-                voted_player = 'changed'
-                print(f'{user.username} is voting out {voted_player}')
-                ret = requests.post(url + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player).json()
+            def send_vote(voted_player: str):
+                print(f'voted player: {voted_player}')
+                ret = requests.post(URL + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player).json()
                 print('return after vote')
                 print(ret)
                 page.go('/votedone')
@@ -390,20 +389,20 @@ def main(page: ft.Page):
                 ],
             )
 
-            # get all players
-            players = requests.get(url + '/players?lobby=' + user.lobby).json() + requests.get(url + '/liar_list?lobby=' + user.lobby).json()
+            player_list = requests.get(URL + '/liar_list?lobby=' + user.lobby).json() + requests.get(
+                URL + '/players?lobby=' + user.lobby).json()
+            player_list.remove(user.username)
+            for player in player_list:
+                view.controls.append(ft.ElevatedButton(text=player,
+                                                       on_click=lambda _,
+                                                        p=player: send_vote(p)))
 
-            players.remove(user.username)
-            for player in players:
-                view.controls.append(ft.ElevatedButton(text=player, on_click=lambda _, p=player: send_vote(p)))
-            page.views.append(
-                view
-            )
-            page.update()
+            page.views.append(view)
             general_timer(vote_time, '/votedone')
+            page.update()
 
             if int(vote_time.value) <= 0:
-                state: str = requests.get(url + '/get_game_state?lobby=' + user.lobby + '&player=' + user.username).json()
+                state: str = requests.get(URL + '/get_game_state?lobby=' + user.lobby + '&player=' + user.username).json()
                 if state == 'PLAYERWIN':
                     page.go('/playerwin')
                 elif state == 'LIARWIN':
@@ -414,9 +413,10 @@ def main(page: ft.Page):
                     page.go('/continue')
                 else:
                     # something fucked up
+                    print('something fucked up')
                     page.go('/')
-
-
+                ret = requests.post(URL + '/reset_vote?lobby=' + user.lobby).json()
+                print(f'ret after round reset {ret}')
 
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
@@ -441,6 +441,8 @@ def main(page: ft.Page):
             )
             general_timer(status_time, '/')
             page.update()
+            ret = requests.post(URL + '/reset_lobby?lobby=' + user.lobby).json()
+
         if page.route == "/playerwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             wintimer = ft.Container(height=400,
@@ -464,6 +466,7 @@ def main(page: ft.Page):
             )
             general_timer(status_time, '/')
             page.update()
+            ret = requests.post(URL + '/reset_lobby?lobby=' + user.lobby).json()
 
         if page.route == "/votedone":
 
@@ -489,13 +492,13 @@ def main(page: ft.Page):
                 )
             )
 
-            ret = requests.get(url).json()
+            ret = requests.get(URL).json()
             if user.username in ret[user.lobby]['liars']:
                 page_to_go = '/liar'
-                user.my_word = requests.get(url + '/get_word?lobby=' + user.lobby + '&player=' + user.username).json()
+                user.my_word = requests.get(URL + '/get_word?lobby=' + user.lobby + '&player=' + user.username).json()
             elif user.username in ret[user.lobby]['active_players']:
                 page_to_go = '/player'
-                user.my_word = requests.get(url + '/get_word?lobby=' + user.lobby + '&player=' + user.username).json()
+                user.my_word = requests.get(URL + '/get_word?lobby=' + user.lobby + '&player=' + user.username).json()
             elif user.username in ret[user.lobby]['voted_out_players']:
                 page_to_go = '/votedout'
             else:

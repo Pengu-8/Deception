@@ -230,6 +230,12 @@ def vote_send(lobby: str, voted_player: str):
     return game_info[lobby]['vote_count']
 
 
+@app.post('/reset_vote')
+def reset(lobby: str):
+    game_info[lobby]['vote_count'] = []
+    return game_info[lobby]['vote_count']
+
+
 @app.post('/enter_lobby')
 def add_player(lobby: str, player: str):
     if player not in game_info[lobby]['active_players']:
@@ -249,6 +255,7 @@ def reset(lobby):
         'current_word': '',
         'used_words': []
     }
+    return game_info[lobby]
 
 
 @app.post('/player_leave')
