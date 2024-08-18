@@ -89,40 +89,47 @@ def main(page: ft.Page):
             border_radius=ft.border_radius.all(10),
         )
 
+        waitstart = ft.Image(
+            src = "./waitstart.png",
+            width=300,
+            height=100,
+            border_radius=ft.border_radius.all(10),
+        )
+
         page.views.clear()
 
         if page.route == "/":
             page.theme_mode = ft.ThemeMode.LIGHT
-            page.views.append(
+            usertext = ft.Container(
+                            content=ft.Text("Username"),
+                            alignment=ft.alignment.center,
+            )
+            userent = ft.Container(
+                            content=username_entry,
+                            alignment=ft.alignment.center,
+            )
+            playbut = ft.Container(
+                            content=ft.ElevatedButton(content=play_button, on_click=lambda _: confirm_username(user, username_entry.value)),
+                            alignment=ft.alignment.center,
+            )
+            rulesbut = ft.Container(
+                            content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
+                            alignment=ft.alignment.center,
+            )
+            space = ft.Container(height=300, content=ft.Text(""))
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [space,usertext, userent, playbut, rulesbut]))
 
+            page.views.append(
                 ft.View(
                     "/",
 
-                    [ft.Container(
-                        content=title_image,
-                        alignment=ft.alignment.center,
-                    ),
-                        ft.Container(
-                            content=home_cat,
-                            alignment=ft.alignment.center,
-                        ),
-                        ft.Container(
-                            content=ft.Text("Username"),
-                            alignment=ft.alignment.center,
-                        ),
-                        ft.Container(
-                            content=username_entry,
-                            alignment=ft.alignment.center,
-                        ),
-                        ft.Container(
-                            content=ft.ElevatedButton(content=play_button, on_click=lambda _: confirm_username(user, username_entry.value)),
-                            alignment=ft.alignment.center,
-                        ),
-                        ft.Container(
-                            content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
-                            alignment=ft.alignment.center,
-                        ),
-                        ft.ElevatedButton("tempbut", on_click=lambda _: page.go("/votedout"))
+                    [
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='Homepage.png',
+                                     ), backgroundcontainer]))])
                     ],
                 )
             )
@@ -191,39 +198,51 @@ def main(page: ft.Page):
 
             page.update()
         if page.route == "/rules":
+            page.theme_mode = ft.ThemeMode.DARK
+            rule1 = ft.Container(
+                 alignment=ft.alignment.center,
+                 margin=0,
+                 content=ft.Text("  1. At the beginning of each round, each player receives a word.",size=15))
+            rule2 = ft.Container(
+                 alignment=ft.alignment.center,
+                 margin=0,
+                 content=ft.Text("  2. Liars receive a part of the word.",size=15))
+            rule3 = ft.Container(
+                alignment=ft.alignment.center,
+                margin=0,
+                content=ft.Text("   3. All players will discuss who they think is/are the Liar(s) without revealing the actual word.", size=15))
+            rule4 = ft.Container(
+                alignment=ft.alignment.center,
+                margin=0,
+                content=ft.Text("   4. If all Liars are voted out, the game ends, and the Players win.", size=15))
+            rule5 = ft.Container(
+                alignment=ft.alignment.center,
+                margin=0,
+                content=ft.Text("   5. If any Liars remain, the game continues to the next round with a new word.", size=15))
+            rule6 = ft.Container(
+                alignment=ft.alignment.center,
+                margin=0,
+                content=ft.Text("   6. If the number of Liars is equal to the number of Players, the Liars win.", size=15))
+            homebut = ft.Container(
+                alignment=ft.alignment.center,
+                margin=0,
+                content=ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")))
+            space = ft.Container(ft.Text("", height=200))
+            buttoncontainer = ft.Container(
+                alignment=ft.alignment.bottom_center,
+                content=ft.Column(
+                    [space, rule1, rule2, rule3,rule4, rule5, rule6,homebut]),
+            )
+
             page.views.append(
                 ft.View(
                     "/rules",
                     [
-                        ft.AppBar(title=ft.Text("Rules"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ft.Text("How To Play"),
-                        ft.Text("Setup:"),
-                        ft.Text("Objective: \
-                    Liars: Successfully deceive the Players by lying about the word to avoid detection. \
-                    Players: Identify and vote out all Liars before they equal or outnumber the Players."),
-                        ft.Text("Words: \
-                    At the beginning of each round, a word is chosen.\
-                    Liars: Receive 40-50% of the word.\
-                    Players: Receive the full word."),
-                        ft.Text("Gameplay:"),
-                        ft.Text("Discussion Phase:"),
-                        ft.Text("Duration: 2 minute.\
-                    Players and Liars discuss their word without revealing the actual word or showing their screens.\
-                    The goal is to identify inconsistencies in others' descriptions to detect the Liars."),
-                        ft.Text("Voting Phase:"),
-                        ft.Text("Duration:30 seconds.\
-                    After the discussion, all players must vote on who they think the Liar(s) is/are.\
-                    The player(s) with the most votes are revealed and removed from the game."),
-                        ft.Text("End of Round:\
-                    If all Liars are correctly identified and voted out, the game ends, and the Players win.\
-                    If any Liars remain, the game continues to the next round with a new word."),
-                        ft.Text("Win Conditions:"),
-                        ft.Text("Players Win: If all Liars are identified and voted out before the number of Liars equals the number of Players.\
-                    Liars Win: If the number of Liars becomes equal to or greater than the number of Players at any point in the game."),
-                        ft.Text("Additional Rules:"),
-                        ft.Text("In case of a tie during voting, a coin will be flipped and one player will be out.\
-                    Players can only vote for a specific individual once per game."),
-                        ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='RulesPage.PNG',
+                                     ), buttoncontainer]))]),
+
+                        # ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                     ],
                 )
             )
@@ -247,29 +266,50 @@ def main(page: ft.Page):
                     user.ready = False
                 page.update()
 
-            ready_status = ft.Text("Not ready")
-            lobby_player_list = ft.Text('')
+            ready_status = ft.Text("Not ready",size=20)
+            ready_status_container = ft.Container(alignment=ft.alignment.center, content=ready_status)
+            playertext = ft.Text('Players', size = 30)
+            lobby_player_list = ft.Text('', size=15)
+            ready_list = ft.ElevatedButton(content=waitstart, on_click=lambda _: ready_up(user, ready_status),height=300)
 
+            ready_container = ft.Container(height=100,
+                                           margin=0,
+                                           alignment=ft.alignment.center,
+                                           content=ready_list)
+            leave_container = ft.Container(height=100,
+                                           margin=0,
+                                           alignment=ft.alignment.center,
+                                           content=ft.ElevatedButton("Leave Lobby", on_click=lambda _: leave_lobby(user)))
+            bgspace= ft.Container(height=75,
+                               margin=0,
+                               alignment=ft.alignment.center,
+                               content=ft.Text(""))
+
+            space = ft.Container(height=175,
+                               margin=0,
+                               alignment=ft.alignment.center,
+                               content=ft.Text(""))
+            lobbytitle = ft.Text(f"Lobby {user.lobby[-1]}", size = 50)
+            lobbycenter = ft.Container(alignment=ft.alignment.center,content=lobbytitle)
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [bgspace, playertext, lobby_player_list]),
+            )
+            buttoncontainer = ft.Container(
+                alignment=ft.alignment.bottom_center,
+                content=ft.Column(
+                    [lobbycenter, space,ready_status_container,ready_container, leave_container]),
+            )
             page.views.append(
                 ft.View(
                     "/waiting",
                     [
-                        ft.Container(
-                            content=wait_cat,
-                            alignment=ft.alignment.center,
-                        ),
-
-                        ft.AppBar(title=ft.Text(f"Lobby {user.lobby[-1]}"), bgcolor=ft.colors.SURFACE_VARIANT),
-                        ready_status,
-                        lobby_player_list,
-                        ft.Container(
-                            content=ft.ElevatedButton("Ready", on_click=lambda _: ready_up(user, ready_status)),
-                            alignment=ft.alignment.center,
-                        ),
-                        ft.Container(
-                            content=ft.ElevatedButton("Leave Lobby", on_click=lambda _: leave_lobby(user)),
-                            alignment=ft.alignment.center,
-                        ),
+                        ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='waiting.png',
+                                     ), backgroundcontainer,buttoncontainer]))]),
+                        # ft.Text(value=f'The word is {user.my_word}')
+                        # ft.AppBar(title=ft.Text(f"Lobby {user.lobby[-1]}"), bgcolor=ft.colors.SURFACE_VARIANT),
                     ]
                 )
             )
@@ -291,16 +331,26 @@ def main(page: ft.Page):
         if page.route == "/liar":
             page.theme_mode = ft.ThemeMode.DARK
             pregame_time = ft.Text(value=f'{PREGAME_PAGE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            pregame_timer = ft.Container(height=500,
-                                         alignment=ft.alignment.bottom_left,
-                                         margin=0,
-                                         content=pregame_time,
-                                         )
-            backgroundcontainer = ft.Container(
+            word = ft.Text(value=f'{user.my_word}')
+            space = ft.Container(ft.Text(""),height=375)
+            word_cont = ft.Container(alignment=ft.alignment.center,
+                                     content=word)
+            # pregame_timer = ft.Container(height=500,
+            #                              alignment=ft.alignment.bottom_left,
+            #                              margin=0,
+            #                              content=pregame_time,
+            #                              )
+            # backgroundcontainer = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.Column(
+            #         [pregame_timer]),
+            #
+            # )
+            wordonbg = ft.Container(
                 alignment=ft.alignment.center,
                 content=ft.Column(
-                    [pregame_timer]),
-
+                    [space,word_cont]
+                )
             )
             page.views.append(
                 ft.View(
@@ -308,8 +358,8 @@ def main(page: ft.Page):
                     [
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='liarpage.png',
-                                     ), backgroundcontainer]))]),
-                        ft.Text(value=f'The word is {user.my_word}')
+                                     ),wordonbg]))]),
+                        # ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -319,16 +369,26 @@ def main(page: ft.Page):
         if page.route == "/player":
             page.theme_mode = ft.ThemeMode.LIGHT
             pregame_time = ft.Text(value=f'{PREGAME_PAGE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            pregame_timer = ft.Container(height=500,
-                                         alignment=ft.alignment.bottom_left,
-                                         margin=0,
-                                         content=pregame_time,
-                                         )
-            backgroundcontainer = ft.Container(
+            word = ft.Text(value=f'{user.my_word}')
+            space = ft.Container(ft.Text(""), height=430)
+            word_cont = ft.Container(alignment=ft.alignment.center,
+                                     content=word)
+            # pregame_timer = ft.Container(height=500,
+            #                              alignment=ft.alignment.bottom_left,
+            #                              margin=0,
+            #                              content=pregame_time,
+            #                              )
+            # backgroundcontainer = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.Column(
+            #         [pregame_timer]),
+            #
+            # )
+            wordonbg = ft.Container(
                 alignment=ft.alignment.center,
                 content=ft.Column(
-                    [pregame_timer]),
-
+                    [space, word_cont]
+                )
             )
             page.views.append(
                 ft.View(
@@ -336,8 +396,8 @@ def main(page: ft.Page):
                     [
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='playerpage.png',
-                                     ), backgroundcontainer]))]),
-                        ft.Text(value=f'The word is {user.my_word}')
+                                     ),wordonbg]))]),
+                        # ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -371,7 +431,8 @@ def main(page: ft.Page):
             general_timer(discussion_time, '/voting')
             page.update()
         if page.route == "/voting":
-            vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, width=100)
+            page.theme_mode = ft.ThemeMode.DARK
+            vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, size= 30)
 
             def send_vote(voted_player: str):
                 print(f'voted player: {voted_player}')
@@ -380,11 +441,35 @@ def main(page: ft.Page):
                 print(ret)
                 page.go('/votedone')
 
+            vote_time_container = ft.Container(height=375,
+                                        alignment=ft.alignment.bottom_center,
+                                        margin=0,
+                                        content=vote_time,
+                                        )
+            bgspace= ft.Container(height=150,
+                               margin=0,
+                               alignment=ft.alignment.center,
+                               content=ft.Text(""))
+
+            backgroundcontainer = ft.Container(
+                alignment=ft.alignment.center,
+                content=ft.Column(
+                    [bgspace, vote_time_container]),
+
+            )
+            buttoncontainer = ft.Container(
+                alignment=ft.alignment.bottom_center,
+                content=ft.Column(
+                    []),
+            )
             view = ft.View(
                 "/voting",
-                [
-                    ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    vote_time,
+                [ft.Column([ft.Container(content=ft.Stack([
+                            ft.Image(src='vote.png',
+                                     ), backgroundcontainer,buttoncontainer]))]),
+
+                    # ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
+                    # vote_time,
                 ],
             )
 
@@ -392,9 +477,17 @@ def main(page: ft.Page):
                 URL + '/players?lobby=' + user.lobby).json()
             player_list.remove(user.username)
             for player in player_list:
-                view.controls.append(ft.ElevatedButton(text=player,
+                vote_p_cont = ft.Container(
+                             alignment=ft.alignment.center,
+                             margin=-3,
+                             content=ft.ElevatedButton(text=player,
                                                        on_click=lambda _,
-                                                        p=player: send_vote(p)))
+                                                        p=player: send_vote(p)),
+                             )
+                buttoncontainer.content.controls.append(vote_p_cont)
+                # buttoncontainer.controls.append(ft.ElevatedButton(text=player,
+                #                                        on_click=lambda _,
+                #                                         p=player: send_vote(p)))
 
             page.views.append(view)
             general_timer(vote_time, '/votedone')
@@ -417,22 +510,22 @@ def main(page: ft.Page):
 
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            wintimer = ft.Container(height=400,
-                                    alignment=ft.alignment.bottom_center,
-                                    margin=0,
-                                    content=status_time,
-                                    )
-            backgroundcontainer = ft.Container(
-                alignment=ft.alignment.center,
-                content=ft.Column(
-                    [wintimer]))
+            # wintimer = ft.Container(height=400,
+            #                         alignment=ft.alignment.bottom_center,
+            #                         margin=0,
+            #                         content=status_time,
+            #                         )
+            # backgroundcontainer = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.Column(
+            #         [wintimer]))
             page.views.append(
                 ft.View(
                     "/liarwin",
                     [
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='liarwin.PNG',
-                                     ), backgroundcontainer]))])
+                                     ), ]))])
                     ],
                 )
             )
@@ -442,22 +535,22 @@ def main(page: ft.Page):
 
         if page.route == "/playerwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            wintimer = ft.Container(height=400,
-                                    alignment=ft.alignment.bottom_center,
-                                    margin=0,
-                                    content=status_time,
-                                    )
-            backgroundcontainer = ft.Container(
-                alignment=ft.alignment.center,
-                content=ft.Column(
-                    [wintimer]))
+            # wintimer = ft.Container(height=400,
+            #                         alignment=ft.alignment.bottom_center,
+            #                         margin=0,
+            #                         content=status_time,
+            #                         )
+            # backgroundcontainer = ft.Container(
+            #     alignment=ft.alignment.center,
+            #     content=ft.Column(
+            #         [wintimer]))
             page.views.append(
                 ft.View(
                     "/playerwin",
                     [
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='pwin.png',
-                                     ), backgroundcontainer]))])
+                                     ), ]))])
                     ],
                 )
             )
@@ -484,7 +577,7 @@ def main(page: ft.Page):
                     "/continue",
                     [
                         ft.Image(src="continue.PNG"),
-                        status_time,
+                        # status_time,
                     ],
                 )
             )
@@ -509,7 +602,7 @@ def main(page: ft.Page):
                     "/votedout",
                     [
                         ft.Image(src='votedout.PNG'),
-                        status_time,
+                        # status_time,
                     ],
                 )
             )
@@ -521,7 +614,6 @@ def main(page: ft.Page):
     def reset_player(player: User):
         player.lobby = None
         player.my_word = None
-        player.ready = False
 
     def view_pop(view):
         page.views.pop()
