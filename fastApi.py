@@ -223,5 +223,3 @@ def toggle_ready(lobby: str, player: str):
 
 uvicorn.run(app, host='127.0.0.1', port=8001)
 
-if __name__ == '__main__':
-    print(hide_word('courtyard', 0.5))
