@@ -3,14 +3,15 @@ import requests
 import time
 
 PREGAME_PAGE_TIME = 15
-DISCUSSION_TIME = 10    # 120
+DISCUSSION_TIME = 120
 VOTING_TIME = 20
-WINNER_TIME = 15
-CONTINUE_TIME = 10
+WINNER_TIME = 10
+CONTINUE_TIME = 7
 VOTED_OUT_TIME = 5
 
 
 def main(page: ft.Page):
+
     class User:
         def __init__(self, username='', lobby=None):
             self.username: str = username
@@ -25,7 +26,8 @@ def main(page: ft.Page):
 
     def confirm_username(player: User, u_name):
         player.username = u_name
-        page.go("/lobby_choose")
+        if len(u_name):
+            page.go("/lobby_choose")
 
     def route_change(route):
         username_entry = ft.TextField(value=user.username, text_align=ft.TextAlign.CENTER, width=400)
@@ -101,20 +103,20 @@ def main(page: ft.Page):
         if page.route == "/":
             page.theme_mode = ft.ThemeMode.LIGHT
             usertext = ft.Container(
-                            content=ft.Text("Username"),
-                            alignment=ft.alignment.center,
+                content=ft.Text("Username"),
+                alignment=ft.alignment.center,
             )
             userent = ft.Container(
-                            content=username_entry,
-                            alignment=ft.alignment.center,
+                content=username_entry,
+                alignment=ft.alignment.center,
             )
             playbut = ft.Container(
-                            content=ft.ElevatedButton(content=play_button, on_click=lambda _: confirm_username(user, username_entry.value)),
-                            alignment=ft.alignment.center,
+                content=ft.ElevatedButton(content=play_button, on_click=lambda _: confirm_username(user, username_entry.value)),
+                alignment=ft.alignment.center,
             )
             rulesbut = ft.Container(
-                            content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
-                            alignment=ft.alignment.center,
+                content=ft.ElevatedButton(content=rules_button, on_click=lambda _: page.go("/rules")),
+                alignment=ft.alignment.center,
             )
             space = ft.Container(height=300, content=ft.Text(""))
             backgroundcontainer = ft.Container(
@@ -137,8 +139,8 @@ def main(page: ft.Page):
         if page.route == "/lobby_choose":
             page.theme_mode = ft.ThemeMode.DARK
 
-            def go_into_lobby(player: User, lob):
-                player.lobby = lob
+            def go_into_lobby(player: User, lobby):
+                player.lobby = lobby
                 can_join = requests.get(URL + "/lobby_status?lobby=" + player.lobby).json()
                 if can_join:
                     page.go("/waiting")
@@ -181,7 +183,6 @@ def main(page: ft.Page):
                 content=ft.Column(
                     [button_container1, button_container2, button_container3, button_container4,
                      button_container5]),
-
             )
 
             page.views.append(
@@ -191,22 +192,21 @@ def main(page: ft.Page):
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='LobbyBackground.png',
                                      ),backgroundcontainer]))]),
-
                     ]
                 )
             )
-
             page.update()
+
         if page.route == "/rules":
             page.theme_mode = ft.ThemeMode.DARK
             rule1 = ft.Container(
-                 alignment=ft.alignment.center,
-                 margin=0,
-                 content=ft.Text("  1. At the beginning of each round, each player receives a word.",size=15))
+                alignment=ft.alignment.center,
+                margin=0,
+                content=ft.Text("  1. At the beginning of each round, each player receives a word.",size=15))
             rule2 = ft.Container(
-                 alignment=ft.alignment.center,
-                 margin=0,
-                 content=ft.Text("  2. Liars receive a part of the word.",size=15))
+                alignment=ft.alignment.center,
+                margin=0,
+                content=ft.Text("  2. Liars receive a part of the word.",size=15))
             rule3 = ft.Container(
                 alignment=ft.alignment.center,
                 margin=0,
@@ -241,11 +241,11 @@ def main(page: ft.Page):
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='RulesPage.PNG',
                                      ), buttoncontainer]))]),
-
-                        # ft.ElevatedButton("Go Home", on_click=lambda _: page.go("/")),
                     ],
                 )
             )
+            page.update()
+
         if page.route == "/waiting":
             def retrieve_word(player: User):
                 word_req = requests.get(URL + '/get_word?lobby=' + player.lobby + '&player=' + player.username).json()
@@ -281,14 +281,14 @@ def main(page: ft.Page):
                                            alignment=ft.alignment.center,
                                            content=ft.ElevatedButton("Leave Lobby", on_click=lambda _: leave_lobby(user)))
             bgspace= ft.Container(height=75,
-                               margin=0,
-                               alignment=ft.alignment.center,
-                               content=ft.Text(""))
+                                  margin=0,
+                                  alignment=ft.alignment.center,
+                                  content=ft.Text(""))
 
             space = ft.Container(height=175,
-                               margin=0,
-                               alignment=ft.alignment.center,
-                               content=ft.Text(""))
+                                 margin=0,
+                                 alignment=ft.alignment.center,
+                                 content=ft.Text(""))
             lobbytitle = ft.Text(f"Lobby {user.lobby[-1]}", size = 50)
             lobbycenter = ft.Container(alignment=ft.alignment.center,content=lobbytitle)
             backgroundcontainer = ft.Container(
@@ -308,11 +308,11 @@ def main(page: ft.Page):
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='waiting.png',
                                      ), backgroundcontainer,buttoncontainer]))]),
-                        # ft.Text(value=f'The word is {user.my_word}')
-                        # ft.AppBar(title=ft.Text(f"Lobby {user.lobby[-1]}"), bgcolor=ft.colors.SURFACE_VARIANT),
                     ]
                 )
             )
+
+            # start game once all player's are ready
             while True:
                 time.sleep(1)
                 player_list = requests.get(URL + '/players?lobby=' + user.lobby).json()
@@ -335,17 +335,6 @@ def main(page: ft.Page):
             space = ft.Container(ft.Text(""),height=375)
             word_cont = ft.Container(alignment=ft.alignment.center,
                                      content=word)
-            # pregame_timer = ft.Container(height=500,
-            #                              alignment=ft.alignment.bottom_left,
-            #                              margin=0,
-            #                              content=pregame_time,
-            #                              )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [pregame_timer]),
-            #
-            # )
             wordonbg = ft.Container(
                 alignment=ft.alignment.center,
                 content=ft.Column(
@@ -359,7 +348,6 @@ def main(page: ft.Page):
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='liarpage.png',
                                      ),wordonbg]))]),
-                        # ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -373,17 +361,6 @@ def main(page: ft.Page):
             space = ft.Container(ft.Text(""), height=430)
             word_cont = ft.Container(alignment=ft.alignment.center,
                                      content=word)
-            # pregame_timer = ft.Container(height=500,
-            #                              alignment=ft.alignment.bottom_left,
-            #                              margin=0,
-            #                              content=pregame_time,
-            #                              )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [pregame_timer]),
-            #
-            # )
             wordonbg = ft.Container(
                 alignment=ft.alignment.center,
                 content=ft.Column(
@@ -397,7 +374,6 @@ def main(page: ft.Page):
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='playerpage.png',
                                      ),wordonbg]))]),
-                        # ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -428,28 +404,26 @@ def main(page: ft.Page):
                     ],
                 )
             )
-            general_timer(discussion_time, '/voting')
             page.update()
+            general_timer(discussion_time, '/voting')
+
+        vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, size=30)
         if page.route == "/voting":
             page.theme_mode = ft.ThemeMode.DARK
-            vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, size= 30)
 
             def send_vote(voted_player: str):
-                print(f'voted player: {voted_player}')
-                ret = requests.post(URL + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player).json()
-                print('return after vote')
-                print(ret)
                 page.go('/votedone')
+                ret = requests.post(URL + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player).json()
 
             vote_time_container = ft.Container(height=375,
-                                        alignment=ft.alignment.bottom_center,
-                                        margin=0,
-                                        content=vote_time,
-                                        )
+                                               alignment=ft.alignment.bottom_center,
+                                               margin=0,
+                                               content=vote_time,
+                                               )
             bgspace= ft.Container(height=150,
-                               margin=0,
-                               alignment=ft.alignment.center,
-                               content=ft.Text(""))
+                                  margin=0,
+                                  alignment=ft.alignment.center,
+                                  content=ft.Text(""))
 
             backgroundcontainer = ft.Container(
                 alignment=ft.alignment.center,
@@ -465,11 +439,8 @@ def main(page: ft.Page):
             view = ft.View(
                 "/voting",
                 [ft.Column([ft.Container(content=ft.Stack([
-                            ft.Image(src='vote.png',
-                                     ), backgroundcontainer,buttoncontainer]))]),
-
-                    # ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    # vote_time,
+                    ft.Image(src='vote.png',
+                             ), backgroundcontainer,buttoncontainer]))]),
                 ],
             )
 
@@ -478,47 +449,18 @@ def main(page: ft.Page):
             player_list.remove(user.username)
             for player in player_list:
                 vote_p_cont = ft.Container(
-                             alignment=ft.alignment.center,
-                             margin=-3,
-                             content=ft.ElevatedButton(text=player,
-                                                       on_click=lambda _,
-                                                        p=player: send_vote(p)),
-                             )
+                    alignment=ft.alignment.center,
+                    margin=-3,
+                    content=ft.ElevatedButton(text=player,
+                                              on_click=lambda _, p=player: send_vote(p)),
+                )
                 buttoncontainer.content.controls.append(vote_p_cont)
-                # buttoncontainer.controls.append(ft.ElevatedButton(text=player,
-                #                                        on_click=lambda _,
-                #                                         p=player: send_vote(p)))
-
             page.views.append(view)
-            general_timer(vote_time, '/votedone')
             page.update()
-
-            if int(vote_time.value) <= 0:
-                state: str = requests.get(URL + '/get_game_state?lobby=' + user.lobby + '&player=' + user.username).json()
-                print(user.username, f" state is : {state}")
-                if state == 'PLAYERWIN':
-                    page.go('/playerwin')
-                elif state == 'LIARWIN':
-                    page.go('/liarwin')
-                elif state == 'CONTINUE':
-                    page.go('/continue')
-                else:
-                    # something fucked up
-                    print('something fucked up')
-                    page.go('/')
-                ret = requests.post(URL + '/reset_vote?lobby=' + user.lobby).json()
+            general_timer(vote_time, '/votedone')
 
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            # wintimer = ft.Container(height=400,
-            #                         alignment=ft.alignment.bottom_center,
-            #                         margin=0,
-            #                         content=status_time,
-            #                         )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [wintimer]))
             page.views.append(
                 ft.View(
                     "/liarwin",
@@ -535,15 +477,6 @@ def main(page: ft.Page):
 
         if page.route == "/playerwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            # wintimer = ft.Container(height=400,
-            #                         alignment=ft.alignment.bottom_center,
-            #                         margin=0,
-            #                         content=status_time,
-            #                         )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [wintimer]))
             page.views.append(
                 ft.View(
                     "/playerwin",
@@ -554,12 +487,11 @@ def main(page: ft.Page):
                     ],
                 )
             )
-            general_timer(status_time, '/')
             page.update()
+            general_timer(status_time, '/')
             ret = requests.post(URL + '/reset_lobby?lobby=' + user.lobby).json()
 
         if page.route == "/votedone":
-
             page.views.append(
                 ft.View(
                     "/votedone",
@@ -569,6 +501,19 @@ def main(page: ft.Page):
                 )
             )
             page.update()
+            if int(vote_time.value) <= 0:
+                state: str = requests.get(URL + '/get_game_state?lobby=' + user.lobby + '&player=' + user.username).json()
+                if state == 'PLAYERWIN':
+                    page.go('/playerwin')
+                elif state == 'LIARWIN':
+                    page.go('/liarwin')
+                elif state == 'CONTINUE':
+                    page.go('/continue')
+                    ret = requests.post(URL + '/reset_vote?lobby=' + user.lobby).json()
+                else:
+                    # something fucked up
+                    print('something fucked up')
+                    page.go('/')
 
         if page.route == "/continue":
             status_time = ft.Text(value=f'{CONTINUE_TIME}', text_align=ft.TextAlign.CENTER, width=100)
@@ -577,10 +522,10 @@ def main(page: ft.Page):
                     "/continue",
                     [
                         ft.Image(src="continue.PNG"),
-                        # status_time,
                     ],
                 )
             )
+            page.update()
 
             ret = requests.get(URL).json()
             if user.username in ret[user.lobby]['liars']:
@@ -592,10 +537,8 @@ def main(page: ft.Page):
             else:
                 page_to_go = '/votedout'
             general_timer(status_time, page_to_go)
-            page.update()
 
         if page.route == "/votedout":
-            #CHANGE THE TIME OF THIS
             status_time = ft.Text(value=f'{VOTED_OUT_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
@@ -633,7 +576,5 @@ def main(page: ft.Page):
 
 
 ft.app(target=main, name='game',view=ft.AppView.WEB_BROWSER,assets_dir='assets')
-
-# ft.app(target=main, name='game')
 
 
