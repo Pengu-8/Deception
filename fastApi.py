@@ -2,40 +2,6 @@ import fastapi
 import uvicorn
 import random
 
-easy_word_list: list[str] = [
-    "apple", "berry", "chair", "table", "grass", "beach", "cloud", "storm", "stone",
-    "ocean", "river", "field", "plant", "bloom", "earth", "world", "peace", "water",
-    "flame", "light", "night", "day", "sleep", "dream", "heart", "faith", "truth",
-    "trust", "smile", "laugh", "tears", "voice", "sound", "music", "color", "shade",
-    "black", "white", "green", "blue", "red", "yellow", "brown", "purple", "silver",
-    "gold", "quiet", "noisy", "happy", "sad", "angry", "sorry", "alone", "calm",
-    "crazy", "magic", "fancy", "quick", "ready", "early", "tired", "happy", "sleep",
-    "apple", "banana", "grape", "mango", "melon", "peach", "plum", "lemon", "berry",
-    "olive", "cherry", "apricot", "beetle", "insect", "spider", "bug", "crab",
-    "shell", "clams", "waves", "algae", "kelp", "stone", "grass", "leaves", "moss",
-    "woods", "river", "rocks", "trail", "path", "hills", "steps", "climb", "rocks",
-    "rope", "cabin", "small", "large", "house", "rooms", "walls", "brick", "floor",
-    "carpet", "sheets", "towel", "light", "lamp", "curtain", "mirror", "books", "piano",
-    "vases", "photo", "clock", "timer", "radio", "phone", "cable", "tools", "tapes",
-    "scarf", "boots", "shoes", "watch", "dress", "shirt", "pants", "belt", "jeans",
-    "shorts", "glove", "beads", "rings", "chain", "clasp", "pouch", "purse", "shoes",
-    "boots", "socks", "light", "lamp", "shade", "table", "books", "music", "paint",
-    "brush", "paper", "photo", "frame", "paint", "mugs", "plate", "spoon", "fork",
-    "glass", "drink", "flask", "knife", "chair", "stool", "bench", "sofa", "curtains",
-    "broom", "mop", "trash", "bag", "bucket", "toilet", "basin", "towel", "tiles",
-    "mirror", "tap", "door", "locks", "keys", "rooms", "walls", "paint", "brush",
-    "chair", "stool", "bench", "table", "couch", "piano", "music", "stool", "clock",
-    "radio", "phone", "alarm", "bell", "light", "bulb", "shade", "book", "table",
-    "shelf", "wood", "nails", "tools", "paint", "rope", "board", "hinge", "wires",
-    "glass", "bowl", "mugs", "plate", "knife", "glass", "pouch", "cans", "clock",
-    "photo", "frame", "shoes", "pouch", "socks", "wires", "tools", "paint", "phone",
-    "alarm", "bell", "light", "bulb", "photo", "frame", "mugs", "plate", "knife",
-    "couch", "stool", "bench", "chair", "books", "photo", "frame", "glass", "plate",
-    "knife", "paint", "brush", "phone", "alarm", "lamp", "shade", "table", "glass",
-    "mugs", "frame", "phone", "alarm", "bell", "books", "music", "paint", "tools",
-    "frame", "paint", "mugs", "plate", "glass", "plate", "clock", "photo", "frame",
-    "table", "stool", "bench", "phone", "alarm", "bell", "light", "shade", "lamp"
-]
 hard_word_list: list[str] = [
     "garden", "flower", "window", "sunset", "morning", "spring", "summer", "winter",
     "autumn", "holiday", "travel", "journey", "explore", "discover", "nature", "animal",
@@ -69,7 +35,7 @@ hard_word_list: list[str] = [
 
 app = fastapi.FastAPI()
 
-LOBBY_MAXIMUM: int = 10
+LOBBY_MAXIMUM: int = 4
 LOBBY_MINIMUM: int = 3
 
 game_info = {
@@ -126,44 +92,22 @@ def hide_word(word: str, hide_perc=0.5) -> str:
 
 
 def init_game(lobby: str):
-
     players: list[str] = game_info[lobby]['active_players']
-    if len(players) <= 5:
-        liar = random.sample(players, k=1)[0]
-        game_info[lobby]['liars'].append(liar)
-        game_info[lobby]['active_players'].remove(liar)
-
-    elif len(players) <= 9:
-        for _ in range(2):
-            liar = random.sample(players, k=1)[0]
-            game_info[lobby]['liars'].append(liar)
-            game_info[lobby]['active_players'].remove(liar)
-
-    else:
-        for _ in range(3):
-            liar = random.sample(players, k=1)[0]
-            game_info[lobby]['liars'].append(liar)
-            game_info[lobby]['active_players'].remove(liar)
-
+    liar = random.sample(players, k=1)[0]
+    game_info[lobby]['liars'].append(liar)
+    game_info[lobby]['active_players'].remove(liar)
     new_round(lobby)
 
 
 def new_round(lobby: str):
     game_info[lobby]['voted_out_players'].clear()
-    check = len(game_info[lobby]['active_players']) - len(game_info[lobby]['liars'])
     while True:
-        if check <= 2:
-            check_word = random.sample(hard_word_list, k=1)[0]
-            if check_word not in game_info[lobby]['used_words']:
-                game_info[lobby]['current_word'] = check_word
-                game_info[lobby]['used_words'].append(check_word)
-                break
-        else:
-            check_word = random.sample(hard_word_list, k=1)[0]
-            if check_word not in game_info[lobby]['used_words']:
-                game_info[lobby]['current_word'] = check_word
-                game_info[lobby]['used_words'].append(check_word)
-                break
+        check_word = random.sample(hard_word_list, k=1)[0]
+        if check_word not in game_info[lobby]['used_words']:
+            game_info[lobby]['current_word'] = check_word
+            game_info[lobby]['used_words'].append(check_word)
+            break
+
 
 
 @app.get('/')

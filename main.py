@@ -3,7 +3,7 @@ import requests
 import time
 
 PREGAME_PAGE_TIME = 15
-DISCUSSION_TIME = 10    # 120
+DISCUSSION_TIME = 120    # 120
 VOTING_TIME = 20
 WINNER_TIME = 15
 CONTINUE_TIME = 10
@@ -335,17 +335,7 @@ def main(page: ft.Page):
             space = ft.Container(ft.Text(""),height=375)
             word_cont = ft.Container(alignment=ft.alignment.center,
                                      content=word)
-            # pregame_timer = ft.Container(height=500,
-            #                              alignment=ft.alignment.bottom_left,
-            #                              margin=0,
-            #                              content=pregame_time,
-            #                              )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [pregame_timer]),
-            #
-            # )
+
             wordonbg = ft.Container(
                 alignment=ft.alignment.center,
                 content=ft.Column(
@@ -359,7 +349,6 @@ def main(page: ft.Page):
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='liarpage.png',
                                      ),wordonbg]))]),
-                        # ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -373,17 +362,7 @@ def main(page: ft.Page):
             space = ft.Container(ft.Text(""), height=430)
             word_cont = ft.Container(alignment=ft.alignment.center,
                                      content=word)
-            # pregame_timer = ft.Container(height=500,
-            #                              alignment=ft.alignment.bottom_left,
-            #                              margin=0,
-            #                              content=pregame_time,
-            #                              )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [pregame_timer]),
-            #
-            # )
+
             wordonbg = ft.Container(
                 alignment=ft.alignment.center,
                 content=ft.Column(
@@ -397,7 +376,6 @@ def main(page: ft.Page):
                         ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='playerpage.png',
                                      ),wordonbg]))]),
-                        # ft.Text(value=f'The word is {user.my_word}')
                     ],
                 )
             )
@@ -435,10 +413,7 @@ def main(page: ft.Page):
             vote_time = ft.Text(value=f'{VOTING_TIME}', text_align=ft.TextAlign.CENTER, size= 30)
 
             def send_vote(voted_player: str):
-                print(f'voted player: {voted_player}')
                 ret = requests.post(URL + '/send_vote?lobby=' + user.lobby + '&voted_player=' + voted_player).json()
-                print('return after vote')
-                print(ret)
                 page.go('/votedone')
 
             vote_time_container = ft.Container(height=375,
@@ -467,9 +442,6 @@ def main(page: ft.Page):
                 [ft.Column([ft.Container(content=ft.Stack([
                             ft.Image(src='vote.png',
                                      ), backgroundcontainer,buttoncontainer]))]),
-
-                    # ft.AppBar(title=ft.Text("Vote"), bgcolor=ft.colors.SURFACE_VARIANT),
-                    # vote_time,
                 ],
             )
 
@@ -485,9 +457,6 @@ def main(page: ft.Page):
                                                         p=player: send_vote(p)),
                              )
                 buttoncontainer.content.controls.append(vote_p_cont)
-                # buttoncontainer.controls.append(ft.ElevatedButton(text=player,
-                #                                        on_click=lambda _,
-                #                                         p=player: send_vote(p)))
 
             page.views.append(view)
             general_timer(vote_time, '/votedone')
@@ -495,7 +464,6 @@ def main(page: ft.Page):
 
             if int(vote_time.value) <= 0:
                 state: str = requests.get(URL + '/get_game_state?lobby=' + user.lobby + '&player=' + user.username).json()
-                print(user.username, f" state is : {state}")
                 if state == 'PLAYERWIN':
                     page.go('/playerwin')
                 elif state == 'LIARWIN':
@@ -504,21 +472,12 @@ def main(page: ft.Page):
                     page.go('/continue')
                 else:
                     # something fucked up
-                    print('something fucked up')
                     page.go('/')
                 ret = requests.post(URL + '/reset_vote?lobby=' + user.lobby).json()
 
         if page.route == "/liarwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            # wintimer = ft.Container(height=400,
-            #                         alignment=ft.alignment.bottom_center,
-            #                         margin=0,
-            #                         content=status_time,
-            #                         )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [wintimer]))
+
             page.views.append(
                 ft.View(
                     "/liarwin",
@@ -535,15 +494,7 @@ def main(page: ft.Page):
 
         if page.route == "/playerwin":
             status_time = ft.Text(value=f'{WINNER_TIME}', text_align=ft.TextAlign.CENTER, width=100)
-            # wintimer = ft.Container(height=400,
-            #                         alignment=ft.alignment.bottom_center,
-            #                         margin=0,
-            #                         content=status_time,
-            #                         )
-            # backgroundcontainer = ft.Container(
-            #     alignment=ft.alignment.center,
-            #     content=ft.Column(
-            #         [wintimer]))
+
             page.views.append(
                 ft.View(
                     "/playerwin",
@@ -595,7 +546,6 @@ def main(page: ft.Page):
             page.update()
 
         if page.route == "/votedout":
-            #CHANGE THE TIME OF THIS
             status_time = ft.Text(value=f'{VOTED_OUT_TIME}', text_align=ft.TextAlign.CENTER, width=100)
             page.views.append(
                 ft.View(
@@ -634,6 +584,5 @@ def main(page: ft.Page):
 
 ft.app(target=main, name='game',view=ft.AppView.WEB_BROWSER,assets_dir='assets')
 
-# ft.app(target=main, name='game')
 
 
